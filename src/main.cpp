@@ -8,8 +8,7 @@ int main(){
     double upperBound = 10.0;
     double dx = 1.0;
 
-    Domain domain;
-    Mesh mesh(lowerBound, upperBound, dx, domain);
+    Domain domain(lowerBound, upperBound, dx);
 
     return 0;
 }

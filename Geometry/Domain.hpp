@@ -11,14 +11,21 @@
 class Domain
 {
 public:
-    
-    std::vector<std::unique_ptr<Node>> getNodes() const;
-    std::vector<std::unique_ptr<Face>> getFaces() const;
-    std::vector<std::unique_ptr<Cell>> getCells() const;
 
-    std::vector<std::unique_ptr<Node>> addNode(const Node&& node);
-    std::vector<std::unique_ptr<Cell>> addCell(const Cell&& cell);
-    std::vector<std::unique_ptr<Face>> addFace(const Face&& face);
+    Domain(const double lowerBound, const double upperBound, const double dx)
+    {
+        createNodes(lowerBound, upperBound, dx);
+        createFaces();
+        createCells();
+    }
+
+    void addNode(const Node&& node);
+    void addCell(const Cell&& cell);
+    void addFace(const Face&& face);
+
+    void createNodes(const double lowerBound, const double upperBound, const double dx);
+    void createFaces();
+    void createCells();
 
 private:
     
