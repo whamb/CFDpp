@@ -3,30 +3,20 @@
 
 #include <vector>
 
-template <typename T>
+
 class Geo
 {
 public:
     Geo() : m_id(-1){}
     
-    Geo(const int id, const std::vector<T>& geos) : m_id(id), m_subGeo(geos){}
-
-    ~Geo() = default;
+    Geo(const int id) : m_id(id){}
 
     void setId(const int id);
 
-    const int getId() const;
-
-    const int getNGeos() const;
-
-    const T* getGeo(int i) const;
-
-    std::vector<const T*> addGeo(const T *geo);
+    const int getId() const;    
 
 protected:
-    std::vector<const T*> m_subGeo;
-    int m_id;
-    
+    int m_id; 
 };
 
 #endif //GEO_h

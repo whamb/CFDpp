@@ -4,17 +4,20 @@
 #include <cassert>
 
 #include <Face.hpp>
-#include <Geo.hpp>
-#include <Cell.hpp>
 
 const bool Face::isValid() const
 {
-    return(getNGeos() == 2 ? true : false);
+    return(getNSubGeos() == 2 ? true : false);
 }
 
-const double Face::surf() const
+const double Face::setSurf(const Node& node1, const Node& node2) const
 {
-    assert(("Face does not have 2 nodes", !isValid()));
-    return sqrt((getGeo(1) -> getX() - getGeo(0) -> getX()) * (getGeo(1) -> getX() - getGeo(0) -> getX()) 
-            +  (getGeo(1) -> getY() - getGeo(0) -> getY()) * (getGeo(1) -> getY() - getGeo(0) -> getY()));  
+    assert(("Face does not have 2 nodes", isValid()));
+    return sqrt((node2.Node::getX() - node1.Node::getX()) * (node2.Node::getX() - node1.Node::getX()) 
+            +  (node2.Node::getY() - node1.Node::getY()) * (node2.Node::getY() - node1.Node::getY()));  
+}
+
+const double Face::getSurf() const
+{
+    return m_surf;
 }

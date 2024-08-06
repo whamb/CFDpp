@@ -2,17 +2,22 @@
 #include <array>
 #include <cassert>
 
+#include <Cell.hpp>
 #include <Face.hpp>
 #include <Geo.hpp>
-#include <Cell.hpp>
+
 
 const bool Cell::isValid() const
 {
-    return(getNGeos() == 2 ? true : false);
+    return(getNSubGeos() == 2 ? true : false);
 }
 
-const double Cell::vol() const
+const double Cell::getVol() const
 {
-    assert(("Cell does not have 2 faces", !isValid()));
-    return(abs(getGeo(0) -> getGeo(0) -> getX() - getGeo(1) -> getGeo(0) -> getX()));
+    return m_vol;
+}
+
+void Cell::setVol(double vol)
+{
+    m_vol = vol;
 }

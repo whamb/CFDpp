@@ -1,11 +1,11 @@
 #include <Node.hpp>
 
-int Node::getX() const
+double Node::getX() const
 {
     return m_x;
 }
 
-int Node::getY() const
+double Node::getY() const
 {
     return m_y;
 }

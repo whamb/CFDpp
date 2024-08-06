@@ -7,21 +7,25 @@
 
 #include <Face.hpp>
 #include <Cell.hpp>
+#include <Node.hpp>
 
 class Domain
 {
 public:
 
-    Domain(const double lowerBound, const double upperBound, const double dx)
-    {
-        createNodes(lowerBound, upperBound, dx);
-        createFaces();
-        createCells();
-    }
+    Domain(const double lowerBound, const double upperBound, const double dx);
 
-    void addNode(const Node&& node);
-    void addCell(const Cell&& cell);
-    void addFace(const Face&& face);
+    const int getNNodes();
+    const int getNFaces();
+    const int getNCells();
+
+    std::vector<std::unique_ptr<Node> >& getNodes();
+    std::vector<std::unique_ptr<Face> >& getFaces();
+    std::vector<std::unique_ptr<Cell> >& getCells();
+
+    void addNode(Node&& node);
+    void addCell(Cell&& cell);
+    void addFace(Face&& face);
 
     void createNodes(const double lowerBound, const double upperBound, const double dx);
     void createFaces();
@@ -29,9 +33,9 @@ public:
 
 private:
     
-    std::vector<std::unique_ptr<Node>> m_nodes;
-    std::vector<std::unique_ptr<Face>> m_faces;
-    std::vector<std::unique_ptr<Cell>> m_cells;
+    std::vector<std::unique_ptr<Node> > m_nodes;
+    std::vector<std::unique_ptr<Face> > m_faces;
+    std::vector<std::unique_ptr<Cell> > m_cells;
 };
 
 #endif // DOMAIN_h

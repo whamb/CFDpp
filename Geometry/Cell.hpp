@@ -4,30 +4,36 @@
 #include <vector>
 #include <array>
 
-#include <Geo.hpp>
+#include <GeoComplex.hpp>
 #include <Face.hpp>
 
 
-class Cell : public Geo<Face>
+class Cell : public GeoComplex
 {
 public:
 
-Cell() : Geo<Face>(), m_vol(0.0){}
+Cell() : GeoComplex(), m_vol(0.0){}
 
-Cell(const Face* f1, const Face* f2) : Geo<Face>()
+Cell(const Face& f1, const Face& f2)
 {
-    m_subGeo.push_back(f1);
-    m_subGeo.push_back(f2);
-    m_vol = vol();
+    getSubGeoIds().push_back(f1.getId());
+    getSubGeoIds().push_back(f2.getId());
 }
 
 const bool isValid() const;
 
-const double vol() const;
+void setVol(double vol);
+const double getVol() const;
+
+friend std::ostream& operator<<(std::ostream& os, Cell& cell) 
+    {
+            os << "Cell id =  " << cell.getId() << " Face0 Id = " << (cell.getSubGeoIds())[0] <<", Node1 Id = " << (cell.getSubGeoIds())[1] << std::endl;
+            return os;
+    }
 
 private:
 
-double m_vol{0};
+double m_vol;
 
 };
 
