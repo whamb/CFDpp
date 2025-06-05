@@ -4,8 +4,9 @@
 
 int main(){
     double lowerBound = 0.0;
-    double upperBound = 15.0;
-    double dx = 15.0;
+    
+    double upperBound = 10.0;
+    double dx = 1.0;
 
     Domain domain(lowerBound,upperBound,dx);
     for(auto &node : domain.Domain::getNodes()){

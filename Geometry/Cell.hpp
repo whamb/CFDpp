@@ -27,7 +27,7 @@ const double getVol() const;
 
 friend std::ostream& operator<<(std::ostream& os, Cell& cell) 
     {
-            os << "Cell id =  " << cell.getId() << " Face0 Id = " << (cell.getSubGeoIds())[0] <<", Node1 Id = " << (cell.getSubGeoIds())[1] << std::endl;
+            os << "Cell id =  " << cell.getId() << " Face0 Id = " << (cell.getSubGeoIds())[0] <<", Face1 Id = " << (cell.getSubGeoIds())[1] << std::endl;
             return os;
     }
 

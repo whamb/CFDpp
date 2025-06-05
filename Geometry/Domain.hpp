@@ -11,6 +11,7 @@
 
 class Domain
 {
+    
 public:
 
     Domain(const double lowerBound, const double upperBound, const double dx);
@@ -36,6 +37,7 @@ private:
     std::vector<std::unique_ptr<Node> > m_nodes;
     std::vector<std::unique_ptr<Face> > m_faces;
     std::vector<std::unique_ptr<Cell> > m_cells;
+
 };
 
 #endif // DOMAIN_h
