@@ -1,39 +1,45 @@
 #ifndef CELL_h
 #define CELL_h
 
-#include <vector>
 #include <array>
+#include <math.h>
+#include <vector>
 
-#include <GeoComplex.hpp>
+
+#include <Geometry.hpp>
 #include <Face.hpp>
 
-
-class Cell : public GeoComplex
+class Cell : public Geometry
 {
 public:
 
-Cell() : GeoComplex(), m_vol(0.0){}
+Cell() = delete;
 
-Cell(const Face& f1, const Face& f2)
-{
-    getSubGeoIds().push_back(f1.getId());
-    getSubGeoIds().push_back(f2.getId());
+Cell(const int id, Face& f1, Face& f2) : 
+Geometry(id), m_faceIds({f1.getId(),f2.getId()}), m_vol(std::abs(f1.getCenter() - f2.getCenter())), 
+m_center(0.5*(f1.getCenter() - f2.getCenter())){
+    assert(isValid() && "Invalid Cell \n");
+    f1.addCell(id);
+    f2.addCell(id);
 }
 
-const bool isValid() const;
+const double getVol() const{return m_vol;}
+const std::array<int, 2>& getFaceIds() const { return m_faceIds; }
 
-void setVol(double vol);
-const double getVol() const;
+bool isValid() const{
+    return(m_faceIds[0]!=-1 && m_faceIds[1]!=-1 && m_vol > 0);
+}
 
-friend std::ostream& operator<<(std::ostream& os, Cell& cell) 
-    {
-            os << "Cell id =  " << cell.getId() << " Face0 Id = " << (cell.getSubGeoIds())[0] <<", Face1 Id = " << (cell.getSubGeoIds())[1] << std::endl;
-            return os;
-    }
+friend std::ostream& operator<<(std::ostream& os, Cell& cell) {
+    os << "Cell id =  " << cell.getId() << ": Face0 Id = " << cell.m_faceIds[0] << ", Face1 Id = " << cell.m_faceIds[1] << "\n";
+    return os;
+}
 
 private:
 
-double m_vol;
+double m_vol = -1.0;
+double m_center = -1.0;
+std::array<int,2> m_faceIds {-1,-1};
 
 };
 

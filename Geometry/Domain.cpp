@@ -2,6 +2,7 @@
 #include <vector>
 #include <array>
 #include <cassert>
+#include <string>
 
 #include <Cell.hpp>
 #include <Domain.hpp>
@@ -9,11 +10,11 @@
 #include <Node.hpp>
 
 Domain::Domain(const double lowerBound, const double upperBound, const double dx)
-    {
-        createNodes(lowerBound, upperBound, dx);
-        createFaces();
-        createCells();
-    }
+{
+    createNodes(lowerBound, upperBound, dx);
+    createFaces();
+    createCells();
+}
 
 const int Domain::getNNodes()
 {
@@ -54,31 +55,24 @@ void Domain::addNode(Node&& node)
 void Domain::addFace(Face&& face)
 {   
     face.setId(m_faces.size());
-    assert(("Invalid node", face.isValid()));
+    if (!face.isValid()) {
+        throw std::runtime_error("Invalid node in face" + std::to_string(face.getId()));
+    }   
     m_faces.push_back(std::make_unique<Face>(face));
 }
 
 void Domain::addCell(Cell&& cell)
 {   
     cell.setId(m_cells.size());
-    assert(("Invalid node", cell.isValid()));
+    if(!cell.isValid()){
+        throw std::runtime_error("Invalid face in cell" + std::to_string(cell.getId()));
+    }
     m_cells.push_back(std::make_unique<Cell>(cell));
 }
 
 void Domain::createNodes(const double lowerBound, const double upperBound, const double dx)
 {   
-    assert(("dx has to be positive", dx > 0));
-    assert(("dx has to be smaller than domain size", dx <= upperBound - lowerBound));
-
-    double x = lowerBound;
-    while(x <= upperBound){   
-        addNode(Node(x));
-        x += dx;
-    }
-    
-    if (x < upperBound + dx){
-        addNode(Node(upperBound));
-    }  
+      
 }
 
 void Domain::createFaces()

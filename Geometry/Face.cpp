@@ -1,23 +1,11 @@
-#include <vector>
-#include <array>
-#include <math.h>
-#include <cassert>
-
+#include <iostream>
 #include <Face.hpp>
 
-const bool Face::isValid() const
-{
-    return(getNSubGeos() == 2 ? true : false);
-}
-
-const double Face::setSurf(const Node& node1, const Node& node2) const
-{
-    assert(("Face does not have 2 nodes", isValid()));
-    return sqrt((node2.Node::getX() - node1.Node::getX()) * (node2.Node::getX() - node1.Node::getX()) 
-            +  (node2.Node::getY() - node1.Node::getY()) * (node2.Node::getY() - node1.Node::getY()));  
-}
-
-const double Face::getSurf() const
-{
-    return m_surf;
+void Face::addCell(const int cellId){
+    if(m_cellIds[0] == -1) 
+        m_cellIds[0] = cellId;
+    else if(m_cellIds[1] == -1) 
+        m_cellIds[1] = cellId;
+    else
+        std::cerr << "Face " << m_id << " already assigned 2 cells";
 }

@@ -1,39 +1,40 @@
 #ifndef FACE_h
 #define FACE_h
 
-#include <vector>
+#include <assert.h>
 #include <array>
 
-#include <GeoComplex.hpp>
+#include <Geometry.hpp>
 #include <Node.hpp>
 
-class Face : public GeoComplex
+class Face : public Geometry
 {
 public:
+    
+Face() = delete;
+Face(const int id, const Node& node) : Geometry(id), m_nodeId(node.getId()), m_center(node.getX()){
+    assert(isValid() && "Invalid Face \n");
+}
 
-    Face() : GeoComplex(), m_surf(0.0){}
+double getCenter() const {return m_center;}
 
-    Face(const Node& node1, const Node& node2)
-    {
-        getSubGeoIds().push_back(node1.getId());
-        getSubGeoIds().push_back(node2.getId());
-        m_surf = setSurf(node1, node2);
-    }
+bool isValid() const {
+    return (m_nodeId >= 0);}
 
-    const bool isValid() const;
+friend std::ostream& operator<<(std::ostream& os, Face& face){
+    os << "Face id =  " << face.getId() << ": Node Id = " << face.m_nodeId <<  "\n";
+    return os;
+}
 
-    const double setSurf(const Node& node1, const Node& node2) const;
-    const double getSurf() const;
-
-    friend std::ostream& operator<<(std::ostream& os, Face& face) 
-    {
-            os << "Face id =  " << face.getId() << " Node0 Id = " << (face.getSubGeoIds())[0] <<", Node1 Id = " << (face.getSubGeoIds())[1] << std::endl;
-            return os;
-    }
+void addCell(const int cellId);
 
 private:
 
-double m_surf;
+int m_nodeId;
+std::array<int,2> m_cellIds {-1,-1};
+double m_center = 0.0;
+double m_area = 1.0;
+double m_normal = 1.0;
 
 };
 

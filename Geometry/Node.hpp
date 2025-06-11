@@ -3,24 +3,23 @@
 
 #include<iostream>
 
-#include <Geo.hpp>
-class Node : public Geo
+#include <Geometry.hpp>
+class Node : public Geometry
 {
 public:
     Node() = delete;
-    Node(const double x, const double y=0) : m_x(x), m_y(y){}
+    Node(const int id, const double x) : Geometry(id), m_x(x){}
 
-    double getX() const;
-    double getY() const;
+    double getX() const {return m_x;}
 
     friend std::ostream& operator<<(std::ostream& os, const Node& node) 
     {
-        os << "Node id =  " << node.getId() << " x = " << node.getX() <<", y = " << node.getY() << std::endl;
+        os << "Node id =  " << node.getId() << ": x = " << node.getX() << "\n";
         return os;
     }
 
 private:
-    double m_x,m_y;
+    double m_x;
 };
 
 #endif //NODE_H
