@@ -5,29 +5,24 @@
 #include <math.h>
 #include <vector>
 
-
-#include <Geometry.hpp>
-#include <Face.hpp>
+#include "Geometry.hpp"
+#include "Face.hpp"
+#include "Types.hpp"
 
 class Cell : public Geometry
 {
 public:
 
 Cell() = delete;
-
-Cell(const int id, Face& f1, Face& f2) : 
-Geometry(id), m_faceIds({f1.getId(),f2.getId()}), m_vol(std::abs(f1.getCenter() - f2.getCenter())), 
-m_center(0.5*(f1.getCenter() - f2.getCenter())){
+Cell(const CellID id, FaceID f1, FaceID f2) : 
+Geometry(id), m_faceIds({f1,f2}){
     assert(isValid() && "Invalid Cell \n");
-    f1.addCell(id);
-    f2.addCell(id);
 }
 
-const double getVol() const{return m_vol;}
-const std::array<int, 2>& getFaceIds() const { return m_faceIds; }
+const std::array<FaceID, 2> getFaceIds() const { return m_faceIds; }
 
 bool isValid() const{
-    return(m_faceIds[0]!=-1 && m_faceIds[1]!=-1 && m_vol > 0);
+    return(m_faceIds[0]!=-1 && m_faceIds[1]!=-1);
 }
 
 friend std::ostream& operator<<(std::ostream& os, Cell& cell) {
@@ -37,9 +32,7 @@ friend std::ostream& operator<<(std::ostream& os, Cell& cell) {
 
 private:
 
-double m_vol = -1.0;
-double m_center = -1.0;
-std::array<int,2> m_faceIds {-1,-1};
+std::array<FaceID,2> m_faceIds {-1,-1};
 
 };
 

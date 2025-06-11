@@ -4,11 +4,12 @@
 #include<iostream>
 
 #include <Geometry.hpp>
+#include "Types.hpp"
 class Node : public Geometry
 {
 public:
     Node() = delete;
-    Node(const int id, const double x) : Geometry(id), m_x(x){}
+    Node(const NodeID id, const double x) : Geometry(id), m_x(x){}
 
     double getX() const {return m_x;}
 

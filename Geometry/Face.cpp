@@ -1,11 +1,10 @@
-#include <iostream>
-#include <Face.hpp>
+#include "Face.hpp"
 
-void Face::addCell(const int cellId){
-    if(m_cellIds[0] == -1) 
-        m_cellIds[0] = cellId;
-    else if(m_cellIds[1] == -1) 
-        m_cellIds[1] = cellId;
+void Face::assignCell(CellID id){
+    if (m_cellIds[0] == -1)
+        m_cellIds[0] = id;
+    else if (m_cellIds[1] == -1)
+        m_cellIds[1] = id;
     else
-        std::cerr << "Face " << m_id << " already assigned 2 cells";
+        throw std::runtime_error("Face already has two cells");
 }

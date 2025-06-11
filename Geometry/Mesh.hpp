@@ -5,7 +5,6 @@
 #include <vector>
 
 #include <Cell.hpp>
-#include <Domain.hpp>
 #include <Face.hpp>
 #include <Node.hpp>
 class Mesh
@@ -13,7 +12,6 @@ class Mesh
 
 public:
 
-// Build a 1D mesh
 Mesh(const double lowerBound, const double upperBound, const double dx);
 
 const std::vector<std::unique_ptr<Node>>& getNodes() const { return m_nodes; }
@@ -22,7 +20,8 @@ const std::vector<std::unique_ptr<Cell>>& getCells() const { return m_cells; }
 
 void addNode(const double x);
 void addFace(const Node& node);
-void addCell(Face& f1, Face& f2);
+void addCell(FaceID f1, FaceID f2);
+bool validate() const;
 
 private:
 
@@ -30,6 +29,11 @@ std::vector<std::unique_ptr<Node> > m_nodes;
 std::vector<std::unique_ptr<Face> > m_faces;
 std::vector<std::unique_ptr<Cell> > m_cells;
 
+std::vector<double> m_cellCenter;
+std::vector<double> m_cellVolume;
+std::vector<double> m_faceCenter;
+std::vector<double> m_faceArea;
+std::vector<double> m_faceNormal;
 };
 
 #endif

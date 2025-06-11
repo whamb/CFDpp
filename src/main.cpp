@@ -20,6 +20,6 @@ int main(){
     for(const auto &cell : mesh.Mesh::getCells()){
         std::cout << *cell;
     }
-
+    
     return 0;
 }

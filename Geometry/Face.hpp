@@ -6,36 +6,41 @@
 
 #include <Geometry.hpp>
 #include <Node.hpp>
+#include "Types.hpp"
 
 class Face : public Geometry
 {
 public:
     
 Face() = delete;
-Face(const int id, const Node& node) : Geometry(id), m_nodeId(node.getId()), m_center(node.getX()){
+Face(const FaceID id, const NodeID nodeId) : Geometry(id), m_nodeId(nodeId){
     assert(isValid() && "Invalid Face \n");
 }
 
-double getCenter() const {return m_center;}
+const CellID getCellId(const int index) const{
+    assert(index < 2);
+    return m_cellIds[index];
+}
+
+void setCell(int index, CellID cellId) {
+    assert(index < 2);
+    m_cellIds[index] = cellId;
+}
 
 bool isValid() const {
     return (m_nodeId >= 0);}
+
+void assignCell(CellID id);
 
 friend std::ostream& operator<<(std::ostream& os, Face& face){
     os << "Face id =  " << face.getId() << ": Node Id = " << face.m_nodeId <<  "\n";
     return os;
 }
 
-void addCell(const int cellId);
-
 private:
 
-int m_nodeId;
-std::array<int,2> m_cellIds {-1,-1};
-double m_center = 0.0;
-double m_area = 1.0;
-double m_normal = 1.0;
-
+NodeID m_nodeId;
+std::array<CellID,2> m_cellIds {-1,-1};
 };
 
 #endif // face_h

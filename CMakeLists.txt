@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add include directories
 include_directories(Geometry)
+include_directories(Utilities)
 
 # Add the executable
-#add_executable(CFDpp src/main.cpp Geometry/Geo.cpp Geometry/Node.cpp Geometry/Domain.cpp Geometry/Face.cpp Geometry/Cell.cpp)
 add_executable(CFDpp src/main.cpp Geometry/Face.cpp Geometry/Mesh.cpp)
