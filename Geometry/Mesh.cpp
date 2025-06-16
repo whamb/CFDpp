@@ -9,11 +9,11 @@
 #include "Node.hpp"
 #include "Types.hpp"
 
-Mesh::Mesh(const double lowerBound, const double upperBound, const double dx){
+Mesh::Mesh(const Double lowerBound, const Double upperBound, const Double dx){
     assert(dx > 0 && "dx has to be positive");
     assert(dx <= upperBound-lowerBound && "dx has to be smaller than domain size");
 
-    double x = lowerBound;
+    Double x = lowerBound;
     while(x <= upperBound){   
         addNode(x);
         x += dx;
@@ -33,7 +33,7 @@ Mesh::Mesh(const double lowerBound, const double upperBound, const double dx){
     assert(validate() && "Mesh failed consistency checks.");
 }
 
-void Mesh::addNode(const double x)
+void Mesh::addNode(const Double x)
 {   
     m_nodes.push_back(std::make_unique<Node>(m_nodes.size(),x));
 }

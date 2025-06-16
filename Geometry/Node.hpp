@@ -9,9 +9,9 @@ class Node : public Geometry
 {
 public:
     Node() = delete;
-    Node(const NodeID id, const double x) : Geometry(id), m_x(x){}
+    Node(const NodeID id, const Double x) : Geometry(id), m_x(x){}
 
-    double getX() const {return m_x;}
+    Double getX() const {return m_x;}
 
     friend std::ostream& operator<<(std::ostream& os, const Node& node) 
     {
@@ -20,7 +20,7 @@ public:
     }
 
 private:
-    double m_x;
+    Double m_x;
 };
 
 #endif //NODE_H

@@ -12,13 +12,13 @@ class Mesh
 
 public:
 
-Mesh(const double lowerBound, const double upperBound, const double dx);
+Mesh(const Double lowerBound, const Double upperBound, const Double dx);
 
 const std::vector<std::unique_ptr<Node>>& getNodes() const { return m_nodes; }
 const std::vector<std::unique_ptr<Face>>& getFaces() const { return m_faces; }
 const std::vector<std::unique_ptr<Cell>>& getCells() const { return m_cells; }
 
-void addNode(const double x);
+void addNode(const Double x);
 void addFace(const Node& node);
 void addCell(FaceID f1, FaceID f2);
 bool validate() const;
@@ -29,11 +29,11 @@ std::vector<std::unique_ptr<Node> > m_nodes;
 std::vector<std::unique_ptr<Face> > m_faces;
 std::vector<std::unique_ptr<Cell> > m_cells;
 
-std::vector<double> m_cellCenter;
-std::vector<double> m_cellVolume;
-std::vector<double> m_faceCenter;
-std::vector<double> m_faceArea;
-std::vector<double> m_faceNormal;
+std::vector<Double> m_cellCenter;
+std::vector<Double> m_cellVolume;
+std::vector<Double> m_faceCenter;
+std::vector<Double> m_faceArea;
+std::vector<Double> m_faceNormal;
 };
 
 #endif

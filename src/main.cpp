@@ -3,9 +3,9 @@
 #include <Mesh.hpp>
 
 int main(){
-    double lowerBound = 0.0;
-    double upperBound = 10.0;
-    double dx = 1.0;
+    Double lowerBound = 0.0;
+    Double upperBound = 10.0;
+    Double dx = 1.0;
 
     Mesh mesh(lowerBound,upperBound,dx);
 

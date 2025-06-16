@@ -4,13 +4,20 @@ cmake_minimum_required(VERSION 3.15)
 project(CFDpp LANGUAGES C CXX)
 
 # Set the C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 #set_property(TARGET CFDpp PROPERTY CXX_STANDARD 17)
 
 # Add include directories
+include_directories(Equation)
+include_directories(Fields)
 include_directories(Geometry)
+include_directories(LinearAlgebra)
+include_directories(Solver)
 include_directories(Utilities)
 
+
 # Add the executable
-add_executable(CFDpp src/main.cpp Geometry/Face.cpp Geometry/Mesh.cpp)
+add_executable(CFDpp src/main.cpp
+               Geometry/Face.cpp Geometry/Mesh.cpp
+               LinearAlgebra/TridiagonalSystem.cpp)
