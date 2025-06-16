@@ -24,13 +24,12 @@ Mesh::Mesh(const Double lowerBound, const Double upperBound, const Double dx) {
     assert(dx <= upperBound - lowerBound && "dx has to be smaller than domain size");
 
     Double x = lowerBound;
-    while (x <= upperBound) {
+    while (x < upperBound - 1e-10) {
         addNode(x);
         x += dx;
     }
-    if (x < upperBound + dx) {
-        addNode(upperBound);
-    }
+    addNode(upperBound);
+
 
     for (const auto& node : m_nodes) {
         addFace(*node);

@@ -1,23 +1,40 @@
 cmake_minimum_required(VERSION 3.15)
+project(CFDpp LANGUAGES CXX)
 
-# Set the project name
-project(CFDpp LANGUAGES C CXX)
-
-# Set the C++ standard
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-#set_property(TARGET CFDpp PROPERTY CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add include directories
-include_directories(Equation)
-include_directories(Fields)
-include_directories(Geometry)
-include_directories(LinearAlgebra)
-include_directories(Solver)
-include_directories(Utilities)
+# Enable testing and add GoogleTest
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/heads/main.zip
+)
+FetchContent_MakeAvailable(googletest)
 
+enable_testing()
 
-# Add the executable
-add_executable(CFDpp src/main.cpp
-               Geometry/Face.cpp Geometry/Mesh.cpp
-               LinearAlgebra/TridiagonalSystem.cpp)
+# Core CFDpp library (logic reused by app and tests)
+add_library(CFDppLib
+    Geometry/Face.cpp
+    Geometry/Mesh.cpp
+    LinearAlgebra/TridiagonalSystem.cpp
+    # Add any additional cpp files here
+)
+
+# Headers
+target_include_directories(CFDppLib PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Equation
+    ${CMAKE_CURRENT_SOURCE_DIR}/Fields
+    ${CMAKE_CURRENT_SOURCE_DIR}/Geometry
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinearAlgebra
+    ${CMAKE_CURRENT_SOURCE_DIR}/Solver
+    ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
+)
+
+# Executable (main solver app)
+add_executable(CFDpp src/main.cpp)
+target_link_libraries(CFDpp PRIVATE CFDppLib)
+
+# Add the test suite
+add_subdirectory(tests)
