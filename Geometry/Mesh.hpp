@@ -21,9 +21,15 @@ class Mesh
 public:
 Mesh(const Double lowerBound, const Double upperBound, const Double dx);
 
+//**************************************//
+//********** Node generation ********** //
+//**************************************//
 void addNode(const Double x);
 const std::vector<std::unique_ptr<Node>>& getNodes() const { return m_nodes; }
 
+//**************************************//
+//********** Face Generation ********** //
+//**************************************//
 void addInteriorFace(const Node& node);
 void addBoundaryFace(const Node& node);
 const std::vector<std::unique_ptr<Face>>& getInteriorFaces() const { return m_interiorFaces; }
@@ -44,6 +50,9 @@ const std::vector<Double>& getFaceArea()   const {return m_faceArea;}
 const std::vector<Double>& getFaceNormal() const {return m_faceNormal;}
 void addFaceGeometry(const Node& node);
 
+//**************************************//
+//********** Cell generation ***********//
+//**************************************//
 void addInteriorCell(FaceID f1, FaceID f2);
 void addBoundaryCell(FaceID f1, FaceID f2);
 const std::vector<std::unique_ptr<Cell>>& getInteriorCells() const { return m_interiorCells; }
@@ -59,20 +68,21 @@ std::span<const Cell*> getCells() const {
 const FaceID getNInteriorCells() const {return m_interiorCells.size();}
 const FaceID getNBoundaryCells() const {return m_boundaryCells.size();}
 const FaceID getNCells() const {return m_faces.size();}
-void addCellGeometry(const FaceID f1, const FaceID f2);
-
-
 const std::vector<Double>& getCellCenter() const {return m_cellCenter;}
 const std::vector<Double>& getCellVolume() const {return m_cellVolume;}
-
-
-
+void addCellGeometry(const FaceID f1, const FaceID f2);
 
 bool validate() const;
 
 private:
+//***********************************//
+//********** Node relative **********//
+//***********************************//
 std::vector<std::unique_ptr<Node>> m_nodes;
 
+//***********************************//
+//********** Face relative **********//
+//***********************************//
 std::vector<std::unique_ptr<Face>> m_interiorFaces;
 std::vector<std::unique_ptr<Face>> m_boundaryFaces;
 std::vector<Face*> m_faces;
@@ -80,6 +90,9 @@ std::vector<Double> m_faceCenter;
 std::vector<Double> m_faceArea;
 std::vector<Double> m_faceNormal;
 
+//***********************************//
+//********** Cell relative **********//
+//***********************************//
 std::vector<std::unique_ptr<Cell>> m_interiorCells;
 std::vector<std::unique_ptr<Cell>> m_boundaryCells;
 std::vector<Cell*> m_cells;
