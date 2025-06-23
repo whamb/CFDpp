@@ -16,6 +16,7 @@ enable_testing()
 
 # Core CFDpp library (logic reused by app and tests)
 add_library(CFDppLib
+    Equation/Burgers.cpp
     Geometry/Face.cpp
     Geometry/Mesh.cpp
     LinearAlgebra/TridiagonalSystem.cpp

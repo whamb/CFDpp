@@ -19,24 +19,23 @@
 class Cell : public Geometry
 {
 public:
-    Cell() = delete;
 
-    Cell(const CellID id, FaceID f1, FaceID f2) : 
-        Geometry(id), m_faceIds({f1, f2}) {
-        assert(isValid() && "Invalid Cell \n");
-    }
+Cell(const CellID id, FaceID f1, FaceID f2) : 
+    Geometry(id), m_faceIds({f1, f2}) {
+    assert(isValid() && "Invalid Cell \n");
+}
+const std::array<FaceID, 2> getFaceIds() const { return m_faceIds; }
+bool isValid() const {
+    return (m_faceIds[0] != -1 && m_faceIds[1] != -1);
+}
+friend std::ostream& operator<<(std::ostream& os, Cell& cell) {
+    os << "Cell id =  " << cell.getId() << ": Face0 Id = " << cell.m_faceIds[0]
+       << ", Face1 Id = " << cell.m_faceIds[1] << "\n";
+    return os;
+}
 
-    const std::array<FaceID, 2> getFaceIds() const { return m_faceIds; }
-
-    bool isValid() const {
-        return (m_faceIds[0] != -1 && m_faceIds[1] != -1);
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, Cell& cell) {
-        os << "Cell id =  " << cell.getId() << ": Face0 Id = " << cell.m_faceIds[0]
-           << ", Face1 Id = " << cell.m_faceIds[1] << "\n";
-        return os;
-    }
+bool isBoundary(){
+    return (m_faceIds[0] == -1 || m_faceIds[0] == -1) ? true : false;}
 
 private:
     std::array<FaceID, 2> m_faceIds { -1, -1 };

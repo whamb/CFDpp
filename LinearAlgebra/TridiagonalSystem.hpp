@@ -13,18 +13,19 @@
  */
 class TridiagonalLHS : public LHS {
 public:
-    TridiagonalLHS(std::span<Double> lower,
-                   std::span<Double> upper,
-                   std::span<Double> diagonal,
-                   CellID size);
+TridiagonalLHS(std::span<Double> lower,
+               std::span<Double> upper,
+               std::span<Double> diagonal,
+               CellID size);
 
-    Double& operator()(CellID i, CellID j) override;
+Double& operator()(CellID i, CellID j) override;
+TridiagonalLHS operator+(const TridiagonalLHS& lhs) const;
 
 private:
-    std::span<Double> m_lower;
-    std::span<Double> m_diagonal;
-    std::span<Double> m_upper;
-    CellID m_size;
+std::span<Double> m_lower;
+std::span<Double> m_diagonal;
+std::span<Double> m_upper;
+CellID m_size;
 };
 
 /**
@@ -34,13 +35,14 @@ private:
  */
 class TridiagonalRHS : public RHS {
 public:
-    TridiagonalRHS(std::span<Double> b, CellID size);
+TridiagonalRHS(std::span<Double> rhs, CellID size){};
 
-    Double& operator()(CellID i) override;
+Double& operator()(CellID i) override;
+TridiagonalRHS operator+(const TridiagonalRHS& rhs) const;
 
 private:
-    std::span<Double> m_b;
-    CellID m_size;
+std::span<Double> m_rhs;
+CellID m_size;
 };
 
 /**
@@ -52,17 +54,31 @@ private:
  */
 class TridiagonalSystem : public LinearSystem {
 public:
-    TridiagonalSystem(CellID size);
+TridiagonalSystem(CellID size)
+: m_size(size),
+  m_lower(size - 1, 0.0),
+  m_upper(size - 1, 0.0),
+  m_diagonal(size, 0.0),
+  m_rhs(size, 0.0),
+  LinearSystem(
+      std::make_unique<TridiagonalLHS>(
+          std::span<Double>(m_lower),
+          std::span<Double>(m_upper),
+          std::span<Double>(m_diagonal),
+          size),
+      std::make_unique<TridiagonalRHS>(
+          std::span<Double>(m_rhs),
+          size)){}
 
-    void initialiseTridiagonalSystem(CellID size);
-    std::vector<Double> thomasSolve() const;
+void initialiseTridiagonalSystem();  // Optional zeroing or custom init
+std::vector<Double> thomasSolve() const;
 
 private:
-    CellID m_size;
-    std::vector<Double> m_lower;
-    std::vector<Double> m_diagonal;
-    std::vector<Double> m_upper;
-    std::vector<Double> m_b;
+CellID m_size;
+std::vector<Double> m_lower;
+std::vector<Double> m_diagonal;
+std::vector<Double> m_upper;
+std::vector<Double> m_rhs;
 };
 
 #endif // TRIDIAGONALSYSTEM_HPP

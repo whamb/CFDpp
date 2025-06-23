@@ -26,6 +26,24 @@ Double& TridiagonalLHS::operator()(CellID i, CellID j) {
         + std::to_string(i) + ", j=" + std::to_string(j));
 }
 
+TridiagonalLHS TridiagonalLHS::operator+(const TridiagonalLHS& lhs) const {
+    if (m_size != lhs.m_size) {
+        throw std::invalid_argument("TridiagonalLHS::operator+: size mismatch");
+    }
+    TridiagonalLHS resultLHS(m_upper,
+                             m_lower,
+                             m_diagonal,
+                             m_size);
+
+    for(int i=0; i<m_size-1; ++i){
+        resultLHS.m_upper[i]    += lhs.m_upper[i];     
+        resultLHS.m_lower[i]    += lhs.m_lower[i];
+        resultLHS.m_diagonal[i] += lhs.m_diagonal[i];
+    }
+    resultLHS.m_diagonal[m_size-1] += lhs.m_diagonal[m_size-1];
+    return resultLHS;
+}
+
 /**
  * @brief Access an element of the right-hand-side vector b(i).
  *
@@ -37,5 +55,18 @@ Double& TridiagonalRHS::operator()(const CellID i) {
     if (i < 0 || i >= m_size) {
         throw std::out_of_range("Index out of bounds in TridiagonalSystem(i): i=" + std::to_string(i));
     }
-    return m_b[i];
+    return m_rhs[i];
 }
+
+TridiagonalRHS TridiagonalRHS::operator+(const TridiagonalRHS& rhs) const {
+    if (m_size != rhs.m_size) {
+        throw std::invalid_argument("TridiagonalRHS::operator+: size mismatch");
+    }
+    TridiagonalRHS resultRHS(m_rhs,
+                             m_size);
+
+    for(int i=0; i<m_size; ++i){
+        resultRHS.m_rhs[i] += rhs.m_rhs[i];
+    }
+    return resultRHS;
+}  

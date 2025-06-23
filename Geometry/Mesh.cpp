@@ -20,8 +20,8 @@
  * @param dx Uniform cell spacing
  */
 Mesh::Mesh(const Double lowerBound, const Double upperBound, const Double dx) {
-    assert(dx > 0 && "dx has to be positive");
-    assert(dx <= upperBound - lowerBound && "dx has to be smaller than domain size");
+    if(dx < 0 || dx > upperBound - lowerBound)
+        throw std::runtime_error("dx value is incompatible.");
 
     Double x = lowerBound;
     while (x < upperBound - 1e-10) {
@@ -30,14 +30,19 @@ Mesh::Mesh(const Double lowerBound, const Double upperBound, const Double dx) {
     }
     addNode(upperBound);
 
-
     for (const auto& node : m_nodes) {
-        addFace(*node);
+        if(std::abs(node->getX() - lowerBound) < 1e-10 || std::abs(node->getX() - upperBound) < 1e-10)
+            addInteriorFace(*node);
+        else 
+            addBoundaryFace(*node);
     }
 
-    for (FaceID i = 0; i < m_faces.size() - 1; ++i) {
-        addCell(i, i + 1);
+    // For the moment, for 1D mesh
+    for (FaceID i = 1; i < getNFaces() - 2; ++i) {
+        addInteriorCell(i, i + 1);
     }
+    addBoundaryCell(0,1);
+    addBoundaryCell(getNFaces()-2, getNFaces()-1);
 
     assert(validate() && "Mesh failed consistency checks.");
 }
@@ -56,8 +61,25 @@ void Mesh::addNode(const Double x) {
  * 
  * @param node Node object from which the face originates
  */
-void Mesh::addFace(const Node& node) {
-    m_faces.push_back(std::make_unique<Face>(m_faces.size(), node.getId()));
+void Mesh::addInteriorFace(const Node& node) {
+    auto facePtr = std::make_unique<Face>(m_faces.size(), node.getId());
+    Face* rawPtr = facePtr.get();
+    m_interiorFaces.push_back(std::move(facePtr));
+    m_faces.push_back(rawPtr);
+    
+    addFaceGeometry(node);
+}
+
+void Mesh::addBoundaryFace(const Node& node) {
+    auto facePtr = std::make_unique<Face>(m_faces.size(), node.getId());
+    Face* rawPtr = facePtr.get();
+    m_boundaryFaces.push_back(std::move(facePtr));
+    m_faces.push_back(rawPtr);
+
+    addFaceGeometry(node);
+}
+
+void Mesh::addFaceGeometry(const Node& node) {
     m_faceCenter.push_back(node.getX());
     m_faceArea.push_back(defaultArea);
     m_faceNormal.push_back(defaultNormal);
@@ -71,10 +93,33 @@ void Mesh::addFace(const Node& node) {
  * @param f1 Left face ID
  * @param f2 Right face ID
  */
-void Mesh::addCell(FaceID f1, FaceID f2) {
+void Mesh::addInteriorCell(FaceID f1, FaceID f2) {
     m_faces[f1]->assignCell(m_cells.size());
     m_faces[f2]->assignCell(m_cells.size());
-    m_cells.push_back(std::make_unique<Cell>(m_cells.size(), f1, f2));
+    
+    auto cellPtr = std::make_unique<Cell>(m_cells.size(), f1, f2);
+    Cell* rawPtr = cellPtr.get();
+    m_interiorCells.push_back(std::move(cellPtr));
+    m_cells.push_back(rawPtr);
+
+    addCellGeometry(f1,f2);
+    
+}
+
+void Mesh::addBoundaryCell(FaceID f1, FaceID f2) {
+    m_faces[f1]->assignCell(m_cells.size());
+    m_faces[f2]->assignCell(m_cells.size());
+    
+    auto cellPtr = std::make_unique<Cell>(m_cells.size(), f1, f2);
+    Cell* rawPtr = cellPtr.get();
+    m_boundaryCells.push_back(std::move(cellPtr));
+    m_cells.push_back(rawPtr);
+
+    addCellGeometry(f1,f2);
+    
+}
+
+void Mesh::addCellGeometry(const FaceID f1, const FaceID f2) {
     m_cellCenter.push_back(0.5 * (m_faceCenter[f1] + m_faceCenter[f2]));
     m_cellVolume.push_back(std::abs(m_faceCenter[f1] - m_faceCenter[f2]));
 }
@@ -91,8 +136,8 @@ bool Mesh::validate() const {
 
     for (size_t i = 0; i < m_faces.size(); ++i) {
         int count = 0;
-        if (m_faces[i]->getCellId(0) != -1) ++count;
-        if (m_faces[i]->getCellId(1) != -1) ++count;
+        if (m_faces[i]->getCellId()[0] != -1) ++count;
+        if (m_faces[i]->getCellId()[1] != -1) ++count;
 
         if (count == 0) {
             std::cerr << "Face " << i << " is orphaned (0 connected cells)\n";

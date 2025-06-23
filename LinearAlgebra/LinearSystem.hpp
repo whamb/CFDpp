@@ -13,8 +13,8 @@
  */
 class LHS {
 public:
-    virtual ~LHS() = default;
-    virtual Double& operator()(CellID i, CellID j) = 0;
+virtual ~LHS() = default;
+virtual Double& operator()(CellID i, CellID j) = 0;
 };
 
 /**
@@ -24,8 +24,8 @@ public:
  */
 class RHS {
 public:
-    virtual ~RHS() = default;
-    virtual Double& operator()(CellID i) = 0;
+virtual ~RHS() = default;
+virtual Double& operator()(CellID i) = 0;
 };
 
 /**
@@ -36,15 +36,15 @@ public:
  */
 class LinearSystem {
 public:
-    LinearSystem(std::unique_ptr<LHS> A, std::unique_ptr<RHS> b)
-        : m_A(std::move(A)), m_b(std::move(b)) {}
+LinearSystem(std::unique_ptr<LHS> lhs, std::unique_ptr<RHS> rhs)
+    : m_lhs(std::move(lhs)), m_rhs(std::move(rhs)) {}
 
-    Double& lhs(CellID i, CellID j) { return (*m_A)(i, j); }
-    Double& rhs(CellID i) { return (*m_b)(i); }
+Double& lhs(CellID i, CellID j) { return (*m_lhs)(i, j); }
+Double& rhs(CellID i) { return (*m_rhs)(i); }
 
 private:
-    std::unique_ptr<LHS> m_A;
-    std::unique_ptr<RHS> m_b;
+std::unique_ptr<LHS> m_lhs;
+std::unique_ptr<RHS> m_rhs;
 };
 
 #endif // LINEARSYSTEM_HPP

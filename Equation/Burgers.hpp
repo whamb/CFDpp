@@ -3,10 +3,24 @@
 
 #include <vector>
 
+#include "CellScalarField.hpp"
 #include "Equation.hpp"
+#include <Expressions.hpp>
+#include <FaceScalarField.hpp>
 #include "Mesh.hpp"
-#include "ScalarField.hpp"
+#include "TridiagonalSystem.hpp"
 #include "Types.hpp"
+
+enum BcType {Dirichlet, Neumann};
+struct TridiagonalTerm {
+    TridiagonalLHS m_lhs;
+    TridiagonalRHS m_rhs;
+
+    TridiagonalTerm(const TridiagonalLHS& lhs, const TridiagonalRHS& rhs): m_lhs(lhs), m_rhs(rhs){};
+    TridiagonalTerm operator+(const TridiagonalTerm& other){
+        return(TridiagonalTerm(m_lhs + other.m_lhs, m_rhs + other.m_rhs)); 
+    } 
+};
 
 /**
  * @brief Solver for the 1D viscous Burgers' equation using the finite volume method.
@@ -15,29 +29,47 @@
  * It supports modular assembly of the advection, diffusion (viscous), and transient terms, and is designed
  * to work with implicit solvers. It serves as a physics-specific implementation derived from a generic Equation interface.
  */
-class Burgers : public Equation 
+class Burgers : public Equation <TridiagonalLHS,TridiagonalRHS, CellScalarField> 
 {
 public:
-    Burgers(Mesh& mesh);
+    Burgers(Mesh& mesh, Double tFinal, Double dt, Double nu): 
+                                               m_mesh(mesh),
+                                               m_size(m_mesh.getNCells()),
+                                               m_u(mesh, "u"),
+                                               m_uf(mesh, "mdot"),
+                                               m_tFinal(tFinal),
+                                               m_dt(dt), 
+                                               m_nu(nu){
+                                               initialiseSolution();}
 
-    std::vector<Double> assembleUpperLHS();
-    std::vector<Double> assembleLowerLHS();
-    std::vector<Double> assembleDiagonalLHS();
-    std::vector<Double> assembleRHS();
+    CellScalarField initialiseSolution() override;
 
-    std::vector<Double> buildAdvectionTerm(std::vector<Double>& massFlux);
-    std::vector<Double> buildViscousTerm(double nu);
-    std::vector<Double> buildTransientTerm(double dt);
+    TridiagonalTerm buildBurgers();
+    TridiagonalTerm buildAdvectionTerm();
+    TridiagonalTerm buildViscousTerm();
+    TridiagonalTerm buildTransientTerm();
+    TridiagonalTerm assignBc(BcType lBcType, Double lBc, BcType rBcType, Double rBc);
 
-    std::vector<Double> solveBurgers(Double tol);
-    std::vector<Double> updateMassFlux(std::vector<Double>& u);
+    CellScalarField solve(Double tol) override;
+    FaceScalarField updateFaceFlux();
+    Double advanceTime();
 
     Double computeResiduals();
     bool checkConvergence();
 
 private:
     Mesh& m_mesh;
+    Double m_size;
+    CellScalarField m_u;
+    FaceScalarField m_uf;
+
     bool m_isConverged = false;
+    Double m_tFinal;
+    Double m_dt;
+    Double m_time = 0.0;
+    
+    Double m_nu;
+
 };
 
 #endif // BURGERS_HPP
