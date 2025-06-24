@@ -20,6 +20,7 @@ add_library(CFDppLib
     Geometry/Face.cpp
     Geometry/Mesh.cpp
     LinearAlgebra/TridiagonalSystem.cpp
+    LinearAlgebra/TripletSystem.cpp
     # Add any additional cpp files here
 )
 
