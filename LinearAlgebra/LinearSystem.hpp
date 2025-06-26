@@ -5,6 +5,9 @@
 #include <vector>
 #include <Types.hpp>
 
+#include <CellScalarField.hpp>
+#include <LinSolverType.hpp>
+
 /**
  * @brief Abstract interface for the left-hand side (matrix) of a linear system.
  * 
@@ -14,7 +17,6 @@
 class LHS {
 public:
 virtual ~LHS() = default;
-virtual Double& operator()(CellID i, CellID j) = 0;
 };
 
 /**
@@ -25,7 +27,6 @@ virtual Double& operator()(CellID i, CellID j) = 0;
 class RHS {
 public:
 virtual ~RHS() = default;
-virtual Double& operator()(CellID i) = 0;
 };
 
 /**
@@ -36,13 +37,13 @@ virtual Double& operator()(CellID i) = 0;
  */
 class LinearSystem {
 public:
+virtual ~LinearSystem() = default;
+virtual CellScalarField solveLinSystem(double linTol, LinSolverType linSolver) = 0;
+
+protected:
 LinearSystem(std::unique_ptr<LHS> lhs, std::unique_ptr<RHS> rhs)
     : m_lhs(std::move(lhs)), m_rhs(std::move(rhs)) {}
 
-Double& lhs(CellID i, CellID j) { return (*m_lhs)(i, j); }
-Double& rhs(CellID i) { return (*m_rhs)(i); }
-
-private:
 std::unique_ptr<LHS> m_lhs;
 std::unique_ptr<RHS> m_rhs;
 };

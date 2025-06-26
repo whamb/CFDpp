@@ -18,7 +18,7 @@ TridiagonalLHS(std::span<Double> lower,
                std::span<Double> diagonal,
                CellID size);
 
-Double& operator()(CellID i, CellID j) override;
+Double& operator()(CellID i, CellID j);
 TridiagonalLHS operator+(const TridiagonalLHS& lhs) const;
 
 private:
@@ -37,7 +37,7 @@ class TridiagonalRHS : public RHS {
 public:
 TridiagonalRHS(std::span<Double> rhs, CellID size){};
 
-Double& operator()(CellID i) override;
+Double& operator()(CellID i);
 TridiagonalRHS operator+(const TridiagonalRHS& rhs) const;
 
 private:

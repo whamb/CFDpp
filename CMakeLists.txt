@@ -19,6 +19,7 @@ add_library(CFDppLib
     Equation/Burgers.cpp
     Geometry/Face.cpp
     Geometry/Mesh.cpp
+    LinearAlgebra/CsrSystem.cpp
     LinearAlgebra/TridiagonalSystem.cpp
     LinearAlgebra/TripletSystem.cpp
     # Add any additional cpp files here
