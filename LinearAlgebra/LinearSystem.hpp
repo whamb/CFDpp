@@ -38,7 +38,7 @@ virtual ~RHS() = default;
 class LinearSystem {
 public:
 virtual ~LinearSystem() = default;
-virtual CellScalarField solveLinSystem(double linTol, LinSolverType linSolver) = 0;
+//virtual CellScalarField solveLinSystem(double linTol, LinSolverType linSolver) = 0;
 
 protected:
 LinearSystem(std::unique_ptr<LHS> lhs, std::unique_ptr<RHS> rhs)

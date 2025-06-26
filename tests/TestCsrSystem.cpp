@@ -1,10 +1,6 @@
-#include <iostream>
-
+#include <gtest/gtest.h>
 #include <TripletSystem.hpp>
 #include <CsrSystem.hpp>
-#include <Mesh.hpp>
-
-
 
 // A mock class to expose protected members for test validation (optional)
 class CsrSystemTestable : public CsrSystem {
@@ -16,15 +12,12 @@ public:
     const std::vector<Double>& getCsrRhs() const { return m_csrRhs; }
 };
 
-int main(){
+TEST(CsrSystemTest, ConvertSimpleTriplet) {
     // Build a dummy mesh with 3 cells
     Mesh mesh(0.0, 3.0, 1.0); // Will create 3 cells: [0,1], [1,2], [2,3]
-    std::cout << mesh.getNCells() << "\n";
-    std::cout << mesh.getNInteriorCells() << "\n";
-    std::cout << mesh.getNBoundaryCells() << "\n";
 
     TripletSystem triplet(mesh);
-    std::cout << triplet.rhsSize() << "\n";
+
     // Matrix:
     // [ 2 3 0 ]
     // [ 3 0 4 ]
@@ -43,12 +36,15 @@ int main(){
 
     // Convert to CSR
     CsrSystemTestable csr(triplet);
-    std::cout << triplet.rhsSize() << "\n";
-    std::cout << csr.rhsSize() << "\n";
 
     // Expected results
     std::vector<Double> expectedValues    = {2.0, 3.0, 3.0, 4.0, 4.0, 5.0};
     std::vector<CellID> expectedColumns   = {0,   1,   0,   2,   1,   2};
     std::vector<CellID> expectedRowStart  = {0,   2,   4,   6};
     std::vector<Double> expectedRhs       = {1.0, 2.0, 3.0};
+
+    EXPECT_EQ(csr.getValues(), expectedValues);
+    EXPECT_EQ(csr.getColumnIdx(), expectedColumns);
+    EXPECT_EQ(csr.getCompressedRow(), expectedRowStart);
+    EXPECT_EQ(csr.getCsrRhs(), expectedRhs);
 }

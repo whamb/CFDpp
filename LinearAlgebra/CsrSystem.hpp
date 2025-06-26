@@ -66,7 +66,7 @@ CsrSystem(TripletSystem& tripletSystem): LinearSystem(nullptr, nullptr)
     convertTripletToCsr(tripletSystem);
     m_lhs = std::make_unique<CsrLHS>(
         std::span<const Double>(m_value),
-        std::span<const CellID>(m_rowIdx),
+        std::span<const CellID>(m_columnIdx),
         std::span<const CellID>(m_compressedRow)
     );
     
@@ -75,14 +75,22 @@ CsrSystem(TripletSystem& tripletSystem): LinearSystem(nullptr, nullptr)
     );
 }
 
+CellID rhsSize(){
+    return m_csrRhs.size();
+}
+
+CellID lhsSize(){
+    // Add test to see if m_value and m_columnIdx have same size 
+    return m_value.size();
+}
+
 void convertTripletToCsr(TripletSystem& tripletSystem);
 
-CellScalarField solveLinSystem(double linTol, LinSolverType linSolver) override;
+//CellScalarField solveLinSystem(double linTol, LinSolverType linSolver) override;
 
-private:
-CellID m_size;
+protected:
 std::vector<Double> m_value;
-std::vector<CellID> m_rowIdx;
+std::vector<CellID> m_columnIdx;
 std::vector<CellID> m_compressedRow;
 std::vector<Double> m_csrRhs;
 };

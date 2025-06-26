@@ -45,6 +45,7 @@ Mesh::Mesh(const Double lowerBound, const Double upperBound, const Double dx) {
     addBoundaryCell(getNFaces()-2, getNFaces()-1);
 
     assert(validate() && "Mesh failed consistency checks.");
+    assert(m_cells.size() == getNCells()); 
 }
 
 /**

@@ -31,10 +31,10 @@ class TripletSystem
 public:
 TripletSystem(Mesh& mesh) { m_rhs.resize(mesh.getNCells()); }
 
-void add(Double value, CellID row, CellID column) {
-m_value.push_back(value);
-m_row.push_back(row);
-m_column.push_back(column);
+void addToLHS(Double value, CellID row, CellID column) {
+    m_value.push_back(value);
+    m_row.push_back(row);
+    m_column.push_back(column);
 }
 
 void addToRHS(CellID row, Double value) {
@@ -43,6 +43,14 @@ void addToRHS(CellID row, Double value) {
 
 void setRHS(CellID row, Double value) {
     m_rhs[row] = value;
+}
+
+CellID rhsSize(){
+    return m_rhs.size();
+}
+
+CellID lhsSize(){
+    return m_value.size();
 }
 
 std::span<const Double> getValues() const {
@@ -62,7 +70,6 @@ std::span<const Double> getRHS() const {
 }
 
 private:
-CellID m_size = 0;
 std::vector<Double> m_value;
 std::vector<CellID> m_row;
 std::vector<CellID> m_column;
