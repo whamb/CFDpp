@@ -22,13 +22,13 @@
 
 struct CsrLHS : public LHS{
 std::span<const Double> m_value;
-std::span<const CellID> m_rowIdx;
+std::span<const CellID> m_columnIdx;
 std::span<const CellID> m_compressedRow;
 
 CsrLHS(std::span<const Double> value,
-       std::span<const CellID> rowIdx,
+       std::span<const CellID> columnIdx,
        std::span<const CellID> compressedRow) : m_value(value),
-                                                m_rowIdx(rowIdx),
+                                                m_columnIdx(columnIdx),
                                                 m_compressedRow(compressedRow){};
 };
 
@@ -75,15 +75,14 @@ CsrSystem(TripletSystem& tripletSystem): LinearSystem(nullptr, nullptr)
     );
 }
 
-CellID rhsSize(){
-    return m_csrRhs.size();
-}
+const CsrLHS* getLhs() const {return dynamic_cast<const CsrLHS*>(m_lhs.get());}
+const CsrRHS* getRhs() const {return dynamic_cast<const CsrRHS*>(m_rhs.get());}
 
-CellID lhsSize(){
-    // Add test to see if m_value and m_columnIdx have same size 
-    return m_value.size();
-}
+const CellID rhsSize() const {return m_csrRhs.size();}
+const CellID lhsSize() const {return m_value.size();}
+const CellID getNRows() const {return m_compressedRow.size() - 1;}
 
+private:
 void convertTripletToCsr(TripletSystem& tripletSystem);
 
 //CellScalarField solveLinSystem(double linTol, LinSolverType linSolver) override;
@@ -93,6 +92,8 @@ std::vector<Double> m_value;
 std::vector<CellID> m_columnIdx;
 std::vector<CellID> m_compressedRow;
 std::vector<Double> m_csrRhs;
+
+
 };
 
 #endif //CSRSYSTEM

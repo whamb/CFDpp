@@ -17,6 +17,16 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 # -------------------------------
+# Include PETSc
+# -------------------------------
+# Must be before `add_executable(...)` or any targets use PETSc
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PETSc REQUIRED IMPORTED_TARGET petsc)
+if (NOT PETSc_FOUND)
+  message(FATAL_ERROR "PETSc not found. Make sure PKG_CONFIG_PATH is set correctly.")
+endif()
+
+# -------------------------------
 # CFDppLib: Core CFD library
 # -------------------------------
 add_library(CFDppLib
@@ -25,6 +35,7 @@ add_library(CFDppLib
     Geometry/Mesh.cpp
     LinearAlgebra/CsrSystem.cpp
     LinearAlgebra/TridiagonalSystem.cpp
+    LinearAlgebra/PetscCsrSolve.cpp
 )
 
 # Public headers for consumers
@@ -36,6 +47,11 @@ target_include_directories(CFDppLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Solver
     ${CMAKE_CURRENT_SOURCE_DIR}/Utilities
 )
+
+# -------------------------------
+# Link PETSc
+# -------------------------------
+target_link_libraries(CFDppLib PUBLIC PkgConfig::PETSc)
 
 # -------------------------------
 # Main solver executable

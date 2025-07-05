@@ -1,10 +1,7 @@
-#include <iostream>
-
 #include <TripletSystem.hpp>
 #include <CsrSystem.hpp>
 #include <Mesh.hpp>
-
-
+#include <PetscCsrSolve.hpp>
 
 // A mock class to expose protected members for test validation (optional)
 class CsrSystemTestable : public CsrSystem {
@@ -19,22 +16,22 @@ public:
 int main(){
     // Build a dummy mesh with 3 cells
     Mesh mesh(0.0, 3.0, 1.0); // Will create 3 cells: [0,1], [1,2], [2,3]
-    std::cout << mesh.getNCells() << "\n";
-    std::cout << mesh.getNInteriorCells() << "\n";
-    std::cout << mesh.getNBoundaryCells() << "\n";
 
     TripletSystem triplet(mesh);
-    std::cout << triplet.rhsSize() << "\n";
     // Matrix:
     // [ 2 3 0 ]
-    // [ 3 0 4 ]
+    // [ 3 5 4 ]
     // [ 0 4 5 ]
     triplet.addToLHS(2.0, 0, 0);
-    triplet.addToLHS(3.0, 0, 1);
-    triplet.addToLHS(3.0, 1, 0);
-    triplet.addToLHS(4.0, 1, 2);
-    triplet.addToLHS(4.0, 2, 1);
     triplet.addToLHS(5.0, 2, 2);
+    triplet.addToLHS(8.0, 1, 1);
+    //triplet.addToLHS(2.0, 0, 0);
+    //triplet.addToLHS(3.0, 0, 1);
+    //triplet.addToLHS(3.0, 1, 0);
+    //triplet.addToLHS(4.0, 1, 2);
+    //triplet.addToLHS(4.0, 2, 1);
+    //triplet.addToLHS(5.0, 2, 2);
+    //triplet.addToLHS(5.0, 1, 1);
 
     // RHS = [1, 2, 3]
     triplet.addToRHS(0, 1.0);
@@ -43,12 +40,7 @@ int main(){
 
     // Convert to CSR
     CsrSystemTestable csr(triplet);
-    std::cout << triplet.rhsSize() << "\n";
-    std::cout << csr.rhsSize() << "\n";
 
-    // Expected results
-    std::vector<Double> expectedValues    = {2.0, 3.0, 3.0, 4.0, 4.0, 5.0};
-    std::vector<CellID> expectedColumns   = {0,   1,   0,   2,   1,   2};
-    std::vector<CellID> expectedRowStart  = {0,   2,   4,   6};
-    std::vector<Double> expectedRhs       = {1.0, 2.0, 3.0};
+    // Linear Solve test
+    PetscCsrSolve::solveWithPETSc(csr);
 }

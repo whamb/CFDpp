@@ -1,6 +1,8 @@
 #include <CsrSystem.hpp>
 
 void CsrSystem::convertTripletToCsr(TripletSystem& tripletSystem){
+    assert(m_value.size() == m_columnIdx.size() && "CSR value/column index size mismatch.");
+
     // Zip into a vector of tuples
     std::vector<std::tuple<CellID, CellID, Double >> combined;
     for (size_t i = 0; i < tripletSystem.lhsSize(); ++i) {
