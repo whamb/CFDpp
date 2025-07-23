@@ -3,9 +3,19 @@
 
 #include <span>
 #include <vector>
+#include <unordered_map>
 
 #include <Mesh.hpp>
 #include <Types.hpp>
+
+struct pair_hash {
+    template <typename T1, typename T2>
+    std::size_t operator()(const std::pair<T1, T2>& p) const noexcept {
+        std::size_t h1 = std::hash<T1>{}(p.first);
+        std::size_t h2 = std::hash<T2>{}(p.second);
+        return h1 ^ (h2 << 1);  // hash combine
+    }
+};
 
 /**
  * @brief Represents a sparse linear system in triplet (COO) format.
@@ -29,51 +39,26 @@
 class TripletSystem
 {
 public:
-TripletSystem(Mesh& mesh) { m_rhs.resize(mesh.getNCells()); }
+TripletSystem(Mesh& mesh);
 
-void addToLHS(Double value, CellID row, CellID column) {
-    m_value.push_back(value);
-    m_row.push_back(row);
-    m_column.push_back(column);
-}
+void addToLHS(Double value, CellID row, CellID column);
+void addToRHS(CellID row, Double value) {m_rhs[row] += value;}
+void setRHS(CellID row, Double value) {m_rhs[row] = value;}
 
-void addToRHS(CellID row, Double value) {
-    m_rhs[row] += value;
-}
+const CellID rhsSize(){return m_rhs.size();}
+const CellID lhsSize(){return m_value.size();}
 
-void setRHS(CellID row, Double value) {
-    m_rhs[row] = value;
-}
-
-CellID rhsSize(){
-    return m_rhs.size();
-}
-
-CellID lhsSize(){
-    return m_value.size();
-}
-
-std::span<const Double> getValues() const {
-    return m_value;
-}
-
-std::span<const CellID> getRows() const {
-    return m_row;
-}
-
-std::span<const CellID> getColumns() const {
-    return m_column;
-}
-
-std::span<const Double> getRHS() const {
-    return m_rhs;
-}
+const std::span<const Double> getValues() const {return m_value;}
+const std::span<const CellID> getRows() const {return m_row;}
+const std::span<const CellID> getColumns() const {return m_column;}
+const std::span<const Double> getRHS() const {return m_rhs;}
 
 private:
 std::vector<Double> m_value;
 std::vector<CellID> m_row;
 std::vector<CellID> m_column;
 std::vector<Double> m_rhs;
+std::unordered_map<std::pair<CellID, CellID>, std::size_t, pair_hash> m_indexMap;
 };
 
 #endif // TRIPLETSYSTEM_HPP

@@ -93,7 +93,6 @@ std::vector<CellID> m_columnIdx;
 std::vector<CellID> m_compressedRow;
 std::vector<Double> m_csrRhs;
 
-
 };
 
 #endif //CSRSYSTEM
