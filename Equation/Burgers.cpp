@@ -80,10 +80,15 @@ void Burgers::buildViscousTerm(Mesh& mesh, TripletSystem& tripletSystem){
     }
 }
 
-void Burgers::assignBc(Mesh& mesh){
+void Burgers::updateBc(Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells         = mesh.getBoundaryCells();
-    const auto& faces         = mesh.getBoundaryFaces();
-    const auto& normals       = mesh.getFaceNormal();
+    const auto& leftBndCell   = cells[0]->getId();
+    const auto& rightBndCell  = cells[1]->getId();
+
+    // Left boundary
+    const Double penalty = 1.0;
+    tripletSystem.addToLHS(leftBndCell, leftBndCell, penalty);
+    tripletSystem.addToLHS(leftBndCell, rightBndCell, -penalty);
 }
 
 Double Burgers::advanceTime(){

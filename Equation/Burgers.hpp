@@ -40,7 +40,7 @@ void buildAdvectionTerm(Mesh& mesh, TripletSystem& tripletSystem);
 void buildViscousTerm(Mesh& mesh, TripletSystem& tripletSystem);
 void buildTransientTerm(Mesh& mesh, TripletSystem& tripletSystem);
 // For the moment, only periodic
-void assignBc(Mesh& mesh);
+void updateBc(Mesh& mesh, TripletSystem& tripletSystem);
 
 // Solving process
 CellScalarField solve(Double tol);
