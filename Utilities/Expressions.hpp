@@ -16,8 +16,8 @@
  * - `posMax(Double d)`: Returns `d` if `d > 0`, otherwise returns `0`.
  */
 
-inline Double posMax(Double d) {
-    return (d > 0) ? d : 0;
+inline constexpr Double posMax(Double d) {
+    return std::max(0.0, d);
 };
 
 #endif // EXPRESSIONS_HPP

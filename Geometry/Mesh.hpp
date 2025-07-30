@@ -36,19 +36,14 @@ const std::vector<std::unique_ptr<Face>>& getInteriorFaces() const { return m_in
 const std::vector<std::unique_ptr<Face>>& getBoundaryFaces() const { return m_boundaryFaces; }
 std::span<Face*> getFaces() { return { m_faces.data(), m_faces.size() }; }
 //Special version for llvm
-std::vector<const Face*> getFaces() const {
-    std::vector<const Face*> view;
-    for (Face* f : m_faces)
-        view.push_back(f);
-    return view;
-}
+std::vector<const Face*> getFaces() const;
 const FaceID getNInteriorFaces() const {return m_interiorFaces.size();}
 const FaceID getNBoundaryFaces() const {return m_boundaryFaces.size();}
 const FaceID getNFaces() const {return m_faces.size();}
 const std::vector<Double>& getFaceCenter() const {return m_faceCenter;}
 const std::vector<Double>& getFaceArea()   const {return m_faceArea;}
 const std::vector<Double>& getFaceNormal() const {return m_faceNormal;}
-void addFaceGeometry(const Node& node);
+void addFaceGeometry(const Node& node, const Face& face);
 
 //**************************************//
 //********** Cell generation ***********//
@@ -59,12 +54,7 @@ const std::vector<std::unique_ptr<Cell>>& getInteriorCells() const { return m_in
 const std::vector<std::unique_ptr<Cell>>& getBoundaryCells() const { return m_boundaryCells; }
 std::span<Cell*> getCells() { return { m_cells.data(), m_cells.size() }; }
 //Special version for llvm
-std::vector<const Cell*> getCells() const {
-    std::vector<const Cell*> view;
-    for (Cell* c : m_cells)
-        view.push_back(c);
-    return view;
-}
+std::vector<const Cell*> getCells() const;
 const FaceID getNInteriorCells() const {return m_interiorCells.size();}
 const FaceID getNBoundaryCells() const {return m_boundaryCells.size();}
 const FaceID getNCells() const {return m_cells.size();}

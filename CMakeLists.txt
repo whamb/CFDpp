@@ -31,11 +31,13 @@ endif()
 # -------------------------------
 add_library(CFDppLib
     Equation/Burgers.cpp
+    Geometry/Cell.cpp
     Geometry/Face.cpp
     Geometry/Mesh.cpp
     LinearAlgebra/CsrSystem.cpp
-    LinearAlgebra/TridiagonalSystem.cpp
     LinearAlgebra/PetscCsrSolve.cpp
+    LinearAlgebra/TridiagonalSystem.cpp
+    LinearAlgebra/TripletSystem.cpp
 )
 
 # Public headers for consumers

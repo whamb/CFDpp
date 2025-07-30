@@ -6,7 +6,7 @@
 
 #include <Geometry.hpp>
 #include <Node.hpp>
-#include "Types.hpp"
+#include <Types.hpp>
 
 /**
  * @brief Represents a face in a 1D finite volume mesh.
@@ -18,29 +18,19 @@
 class Face : public Geometry
 {
 public:
-
 Face(const FaceID id, const NodeID nodeId)
     : Geometry(id), m_nodeId(nodeId) {
     assert(isValid() && "Invalid Face \n");
 }
 
-const std::array<CellID, 2> getCellId() const {
-    return m_cellIds;
-}
-
-void setCell(int index, CellID cellId) {
-    assert(index < 2);
-    m_cellIds[index] = cellId;
-}
-bool isValid() const {
-    return (m_nodeId >= 0);
-}
-
-bool isBoundary(){
-    return (m_cellIds[0] == -1 || m_cellIds[0] == -1) ? true : false;
-}
+const std::array<CellID, 2> getCellId() const {return m_cellIds;}
+void setCell(int index, CellID cellId);
+bool isValid() const {return (m_nodeId >= 0);}
+bool isBoundary(){return (m_cellIds[0] == -1 || m_cellIds[0] == -1) ? true
+                                                                    : false;}
 
 void assignCell(CellID id);
+
 friend std::ostream& operator<<(std::ostream& os, Face& face) {
     os << "Face id =  " << face.getId()
        << ": Node Id = " << face.m_nodeId << "\n";
@@ -48,8 +38,8 @@ friend std::ostream& operator<<(std::ostream& os, Face& face) {
 }
 
 private:
-    NodeID m_nodeId;
-    std::array<CellID, 2> m_cellIds { -1, -1 };
+NodeID m_nodeId;
+std::array<CellID, 2> m_cellIds { -1, -1 };
 };
 
 #endif // FACE_h

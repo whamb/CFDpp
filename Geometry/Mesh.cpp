@@ -67,8 +67,7 @@ void Mesh::addInteriorFace(const Node& node) {
     Face* rawPtr = facePtr.get();
     m_interiorFaces.push_back(std::move(facePtr));
     m_faces.push_back(rawPtr);
-    
-    addFaceGeometry(node);
+    addFaceGeometry(node, *rawPtr);
 }
 
 void Mesh::addBoundaryFace(const Node& node) {
@@ -76,14 +75,22 @@ void Mesh::addBoundaryFace(const Node& node) {
     Face* rawPtr = facePtr.get();
     m_boundaryFaces.push_back(std::move(facePtr));
     m_faces.push_back(rawPtr);
-
-    addFaceGeometry(node);
+    addFaceGeometry(node, *rawPtr);
 }
 
-void Mesh::addFaceGeometry(const Node& node) {
+std::vector<const Face*> Mesh::getFaces() const{
+    std::vector<const Face*> view;
+    for (Face* f : m_faces)
+        view.push_back(f);
+    return view;
+}
+
+void Mesh::addFaceGeometry(const Node& node, const Face& face) {
     m_faceCenter.push_back(node.getX());
     m_faceArea.push_back(defaultArea);
-    m_faceNormal.push_back(defaultNormal);
+    // Orientation of face normal : lowerId -> higherId
+    (face.getCellId()[0] < face.getCellId()[1]) ? m_faceNormal.push_back(defaultNormal)
+                                                : m_faceNormal.push_back(-defaultNormal); 
 }
 
 /**
@@ -123,6 +130,13 @@ void Mesh::addBoundaryCell(FaceID f1, FaceID f2) {
 void Mesh::addCellGeometry(const FaceID f1, const FaceID f2) {
     m_cellCenter.push_back(0.5 * (m_faceCenter[f1] + m_faceCenter[f2]));
     m_cellVolume.push_back(std::abs(m_faceCenter[f1] - m_faceCenter[f2]));
+}
+
+std::vector<const Cell*> Mesh::getCells() const {
+    std::vector<const Cell*> view;
+    for (Cell* c : m_cells)
+        view.push_back(c);
+    return view;
 }
 
 /**

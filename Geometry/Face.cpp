@@ -1,5 +1,10 @@
 #include "Face.hpp"
 
+void Face::setCell(int index, CellID cellId) {
+    assert(index < 2);
+    m_cellIds[index] = cellId;
+}
+
 /**
  * @brief Assigns a cell to the face.
  * 

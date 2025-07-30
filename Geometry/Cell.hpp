@@ -5,9 +5,9 @@
 #include <math.h>
 #include <vector>
 
-#include "Geometry.hpp"
-#include "Face.hpp"
-#include "Types.hpp"
+#include <Geometry.hpp>
+#include <Face.hpp>
+#include <Types.hpp>
 
 /**
  * @brief Represents a finite volume cell in 1D space.
@@ -21,24 +21,27 @@ class Cell : public Geometry
 public:
 
 Cell(const CellID id, FaceID f1, FaceID f2) : 
-    Geometry(id), m_faceIds({f1, f2}) {
-    assert(isValid() && "Invalid Cell \n");
-}
+    Geometry(id), m_faceIds({f1, f2}) 
+    {assert(isValid() && "Invalid Cell \n");}
+
 const std::array<FaceID, 2> getFaceIds() const { return m_faceIds; }
-bool isValid() const {
-    return (m_faceIds[0] != -1 && m_faceIds[1] != -1);
-}
+
+bool isValid() const {return (m_faceIds[0] != -1 && m_faceIds[1] != -1);}
+
+bool isBoundary(){return (m_faceIds[0] == -1 || m_faceIds[0] == -1) ? true 
+                                                                    : false;}
+const CellID getNghbrCell(const Face& face) const;
+
 friend std::ostream& operator<<(std::ostream& os, Cell& cell) {
     os << "Cell id =  " << cell.getId() << ": Face0 Id = " << cell.m_faceIds[0]
        << ", Face1 Id = " << cell.m_faceIds[1] << "\n";
     return os;
 }
 
-bool isBoundary(){
-    return (m_faceIds[0] == -1 || m_faceIds[0] == -1) ? true : false;}
+
 
 private:
-    std::array<FaceID, 2> m_faceIds { -1, -1 };
+std::array<FaceID, 2> m_faceIds { -1, -1 };
 };
 
 #endif // CELL_h
