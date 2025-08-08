@@ -1,9 +1,9 @@
 #include <cmath>
 #include <numbers>
 
-#include <Burgers.hpp>
+#include <BurgersEqn.hpp>
 
-void Burgers::initialiseSolution(Mesh& mesh){
+void Burgers::initialiseSolution(const Mesh& mesh){
     const auto& cell               = mesh.getCells();
     const auto& cellCenter         = mesh.getCellCenter();
     const auto& interiorFace       = mesh.getInteriorFaces();
@@ -38,16 +38,17 @@ void Burgers::initialiseSolution(Mesh& mesh){
         Double u = m_u[c];
         m_uf[bFId] = u * area;
     }
-    
 }
 
-void Burgers::buildBurgers(Mesh& mesh, TripletSystem& tripletSystem){
+void Burgers::buildBurgers(const Mesh& mesh, TripletSystem& tripletSystem){
+    updateFaceFlux    (mesh);
     buildAdvectionTerm(mesh, tripletSystem);
-    buildViscousTerm(mesh, tripletSystem);
+    buildViscousTerm  (mesh, tripletSystem);
     buildTransientTerm(mesh, tripletSystem);
+    updateBc          (mesh,tripletSystem);
 }
 
-void Burgers::buildAdvectionTerm(Mesh& mesh, TripletSystem& tripletSystem){
+void Burgers::buildAdvectionTerm(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells         = mesh.getInteriorCells();
     const auto& faces         = mesh.getInteriorFaces();
     const auto& normals       = mesh.getFaceNormal();
@@ -71,16 +72,25 @@ void Burgers::buildAdvectionTerm(Mesh& mesh, TripletSystem& tripletSystem){
     }
 }
 
-void Burgers::buildViscousTerm(Mesh& mesh, TripletSystem& tripletSystem){
+void Burgers::buildViscousTerm(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells = mesh.getInteriorCells();
     const auto& faces = mesh.getInteriorFaces();
-    
-    for(const auto& c : cells){
+}
 
+void Burgers::buildTransientTerm(const Mesh& mesh, TripletSystem& tripletSystem){
+    const auto& cells = mesh.getInteriorCells();
+    const auto& vol  = mesh.getCellVolume();
+
+    for(const auto& cell : cells){
+        const CellID cellId = cell->getId();
+        const Double transientCoeff = vol[cellId] / m_dt; 
+
+        tripletSystem.addToLHS(cellId, cellId, transientCoeff);
+        tripletSystem.addToRHS(cellId, transientCoeff * m_u[cellId]);  
     }
 }
 
-void Burgers::updateBc(Mesh& mesh, TripletSystem& tripletSystem){
+void Burgers::updateBc(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells         = mesh.getBoundaryCells();
     const auto& leftBndCell   = cells[0]->getId();
     const auto& rightBndCell  = cells[1]->getId();
@@ -89,6 +99,17 @@ void Burgers::updateBc(Mesh& mesh, TripletSystem& tripletSystem){
     const Double penalty = 1.0;
     tripletSystem.addToLHS(leftBndCell, leftBndCell, penalty);
     tripletSystem.addToLHS(leftBndCell, rightBndCell, -penalty);
+}
+
+void Burgers::updateFaceFlux(const Mesh& mesh){
+    const auto& interiorFace       = mesh.getInteriorFaces();
+
+    for(const auto& face : interiorFace){
+        const FaceID faceId = face->getId();
+        const CellID c0 = face->getCellId()[0];
+        const CellID c1 = face->getCellId()[1];
+        m_uf[faceId] = 0.5 * (m_uf[c0] + m_uf[c1]);
+    }
 }
 
 Double Burgers::advanceTime(){

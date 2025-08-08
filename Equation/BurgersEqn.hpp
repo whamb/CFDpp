@@ -32,21 +32,19 @@ Burgers(Mesh& mesh, Double tFinal, Double dt, Double nu):
                                            m_nu(nu){
                                            initialiseSolution(mesh);}
 // System initialisation
-void initialiseSolution(Mesh& mesh);
+void initialiseSolution(const Mesh& mesh);
 
 // Build functions
-void buildBurgers(Mesh& mesh, TripletSystem& tripletSystem);
-void buildAdvectionTerm(Mesh& mesh, TripletSystem& tripletSystem);
-void buildViscousTerm(Mesh& mesh, TripletSystem& tripletSystem);
-void buildTransientTerm(Mesh& mesh, TripletSystem& tripletSystem);
+void buildBurgers       (const Mesh& mesh, TripletSystem& tripletSystem);
+void buildAdvectionTerm (const Mesh& mesh, TripletSystem& tripletSystem);
+void buildViscousTerm   (const Mesh& mesh, TripletSystem& tripletSystem);
+void buildTransientTerm (const Mesh& mesh, TripletSystem& tripletSystem);
 // For the moment, only periodic
-void updateBc(Mesh& mesh, TripletSystem& tripletSystem);
+void updateBc(const Mesh& mesh, TripletSystem& tripletSystem);
+void updateFaceFlux(const Mesh& mesh);
 
-// Solving process
-CellScalarField solve(Double tol);
-FaceScalarField updateFaceFlux();
 Double advanceTime();
-Double computeResiduals();
+Double computeResiduals(const TripletSystem& tripletSystem);
 bool checkConvergence();
 
 private:
@@ -58,7 +56,6 @@ bool m_isConverged = false;
 Double m_tFinal;
 Double m_dt;
 Double m_time = 0.0;
-    
 Double m_nu;
 
 };

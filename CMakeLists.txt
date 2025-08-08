@@ -30,7 +30,7 @@ endif()
 # CFDppLib: Core CFD library
 # -------------------------------
 add_library(CFDppLib
-    Equation/Burgers.cpp
+    Equation/BurgersEqn.cpp
     Geometry/Cell.cpp
     Geometry/Face.cpp
     Geometry/Mesh.cpp
