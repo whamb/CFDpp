@@ -1,5 +1,5 @@
-#ifndef BURGERS_HPP
-#define BURGERS_HPP
+#ifndef BURGERSEQN_HPP
+#define BURGERSEQN_HPP
 
 #include <vector>
 
@@ -23,11 +23,10 @@ enum BcType {Dirichlet, Neumann};
 class Burgers
 {
 public:
-Burgers(Mesh& mesh, Double tFinal, Double dt, Double nu): 
+Burgers(Mesh& mesh, Double dt, Double nu): 
                                            m_size(mesh.getNCells()),
                                            m_u(mesh, "u"),
                                            m_uf(mesh, "mdot"),
-                                           m_tFinal(tFinal),
                                            m_dt(dt), 
                                            m_nu(nu){
                                            initialiseSolution(mesh);}
@@ -40,24 +39,16 @@ void buildAdvectionTerm (const Mesh& mesh, TripletSystem& tripletSystem);
 void buildViscousTerm   (const Mesh& mesh, TripletSystem& tripletSystem);
 void buildTransientTerm (const Mesh& mesh, TripletSystem& tripletSystem);
 // For the moment, only periodic
-void updateBc(const Mesh& mesh, TripletSystem& tripletSystem);
+void updateBc      (const Mesh& mesh, TripletSystem& tripletSystem);
 void updateFaceFlux(const Mesh& mesh);
-
-Double advanceTime();
-Double computeResiduals(const TripletSystem& tripletSystem);
-bool checkConvergence();
 
 private:
 Double m_size;
 CellScalarField m_u;
 FaceScalarField m_uf;
-
-bool m_isConverged = false;
-Double m_tFinal;
 Double m_dt;
-Double m_time = 0.0;
 Double m_nu;
 
 };
 
-#endif // BURGERS_HPP
+#endif // BURGERSEQN_HPP

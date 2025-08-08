@@ -111,7 +111,3 @@ void Burgers::updateFaceFlux(const Mesh& mesh){
         m_uf[faceId] = 0.5 * (m_uf[c0] + m_uf[c1]);
     }
 }
-
-Double Burgers::advanceTime(){
-    return m_time + m_dt;
-}
