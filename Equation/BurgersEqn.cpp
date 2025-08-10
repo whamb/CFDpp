@@ -3,7 +3,7 @@
 
 #include <BurgersEqn.hpp>
 
-void Burgers::initialiseSolution(const Mesh& mesh){
+void BurgersEqn::initialiseSolution(const Mesh& mesh){
     const auto& cell               = mesh.getCells();
     const auto& cellCenter         = mesh.getCellCenter();
     const auto& interiorFace       = mesh.getInteriorFaces();
@@ -40,7 +40,7 @@ void Burgers::initialiseSolution(const Mesh& mesh){
     }
 }
 
-void Burgers::buildBurgers(const Mesh& mesh, TripletSystem& tripletSystem){
+void BurgersEqn::buildBurgers(const Mesh& mesh, TripletSystem& tripletSystem){
     updateFaceFlux    (mesh);
     buildAdvectionTerm(mesh, tripletSystem);
     buildViscousTerm  (mesh, tripletSystem);
@@ -48,7 +48,7 @@ void Burgers::buildBurgers(const Mesh& mesh, TripletSystem& tripletSystem){
     updateBc          (mesh,tripletSystem);
 }
 
-void Burgers::buildAdvectionTerm(const Mesh& mesh, TripletSystem& tripletSystem){
+void BurgersEqn::buildAdvectionTerm(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells         = mesh.getInteriorCells();
     const auto& faces         = mesh.getInteriorFaces();
     const auto& normals       = mesh.getFaceNormal();
@@ -72,12 +72,12 @@ void Burgers::buildAdvectionTerm(const Mesh& mesh, TripletSystem& tripletSystem)
     }
 }
 
-void Burgers::buildViscousTerm(const Mesh& mesh, TripletSystem& tripletSystem){
+void BurgersEqn::buildViscousTerm(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells = mesh.getInteriorCells();
     const auto& faces = mesh.getInteriorFaces();
 }
 
-void Burgers::buildTransientTerm(const Mesh& mesh, TripletSystem& tripletSystem){
+void BurgersEqn::buildTransientTerm(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells = mesh.getInteriorCells();
     const auto& vol  = mesh.getCellVolume();
 
@@ -90,7 +90,7 @@ void Burgers::buildTransientTerm(const Mesh& mesh, TripletSystem& tripletSystem)
     }
 }
 
-void Burgers::updateBc(const Mesh& mesh, TripletSystem& tripletSystem){
+void BurgersEqn::updateBc(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells         = mesh.getBoundaryCells();
     const auto& leftBndCell   = cells[0]->getId();
     const auto& rightBndCell  = cells[1]->getId();
@@ -101,7 +101,7 @@ void Burgers::updateBc(const Mesh& mesh, TripletSystem& tripletSystem){
     tripletSystem.addToLHS(leftBndCell, rightBndCell, -penalty);
 }
 
-void Burgers::updateFaceFlux(const Mesh& mesh){
+void BurgersEqn::updateFaceFlux(const Mesh& mesh){
     const auto& interiorFace       = mesh.getInteriorFaces();
 
     for(const auto& face : interiorFace){

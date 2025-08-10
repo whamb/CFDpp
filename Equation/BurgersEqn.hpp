@@ -20,16 +20,16 @@ enum BcType {Dirichlet, Neumann};
  * It supports modular assembly of the advection, diffusion (viscous), and transient terms, and is designed
  * to work with implicit solvers. It serves as a physics-specific implementation derived from a generic Equation interface.
  */
-class Burgers
+class BurgersEqn
 {
 public:
-Burgers(Mesh& mesh, Double dt, Double nu): 
-                                           m_size(mesh.getNCells()),
-                                           m_u(mesh, "u"),
-                                           m_uf(mesh, "mdot"),
-                                           m_dt(dt), 
-                                           m_nu(nu){
-                                           initialiseSolution(mesh);}
+BurgersEqn(Mesh& mesh, Double dt, Double nu): 
+    m_size(mesh.getNCells()),
+    m_u(mesh, "u"),
+    m_uf(mesh, "mdot"),
+    m_dt(dt), 
+    m_nu(nu)
+    {}
 // System initialisation
 void initialiseSolution(const Mesh& mesh);
 
@@ -42,13 +42,14 @@ void buildTransientTerm (const Mesh& mesh, TripletSystem& tripletSystem);
 void updateBc      (const Mesh& mesh, TripletSystem& tripletSystem);
 void updateFaceFlux(const Mesh& mesh);
 
+CellScalarField& getU(){return m_u;}
+
 private:
 Double m_size;
 CellScalarField m_u;
 FaceScalarField m_uf;
 Double m_dt;
 Double m_nu;
-
 };
 
 #endif // BURGERSEQN_HPP

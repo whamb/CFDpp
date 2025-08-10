@@ -2,11 +2,11 @@
 #include <TripletSystem.hpp>
 #include <Types.hpp>
 
-TripletSystem::TripletSystem(Mesh& mesh){
+TripletSystem::TripletSystem(const Mesh& mesh){
     m_rhs.resize(mesh.getNCells());
 }
 
-void TripletSystem::addToLHS(Double value, CellID row, CellID column) {
+void TripletSystem::addToLHS(const Double value, const CellID row, const CellID column) {
     //Deal with the case the i,j index already created
     auto key = std::make_pair(row,column);
     auto found = m_indexMap.find(key);
@@ -20,4 +20,12 @@ void TripletSystem::addToLHS(Double value, CellID row, CellID column) {
     else{
         m_value[found -> second] += value;
     }
+}
+
+void TripletSystem::clear(){
+    m_value.clear();
+    m_row.clear();
+    m_column.clear();
+    m_rhs.assign(m_rhs.size(), 0.0);
+    m_indexMap.clear();
 }

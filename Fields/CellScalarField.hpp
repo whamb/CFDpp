@@ -7,7 +7,7 @@
 class CellScalarField : public ScalarField<std::vector<Double>>
 {
 public:
-CellScalarField(Mesh& mesh, std::string name): ScalarField(name){
+CellScalarField(const Mesh& mesh, std::string name): ScalarField(name){
     m_field.resize(mesh.getNCells());}
 };
 

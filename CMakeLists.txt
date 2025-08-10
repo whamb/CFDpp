@@ -31,6 +31,7 @@ endif()
 # -------------------------------
 add_library(CFDppLib
     Equation/BurgersEqn.cpp
+    Equation/SolveBurgers.cpp
     Geometry/Cell.cpp
     Geometry/Face.cpp
     Geometry/Mesh.cpp

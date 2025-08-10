@@ -14,4 +14,6 @@
 inline constexpr Double defaultArea = 1.0;    ///< Default face area (used in 1D FVM)
 inline constexpr Double defaultNormal = 1.0;  ///< Default face normal orientation (+1.0)
 
+inline constexpr int maxIts = 100;  ///< Default face normal orientation (+1.0)
+
 #endif // CONSTANTS_HPP

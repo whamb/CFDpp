@@ -1,5 +1,6 @@
 #include <petscksp.h>
 
+#include <Constants.hpp>
 #include <CsrSystem.hpp>
 #include <PetscCsrSolve.hpp>
 
@@ -27,12 +28,14 @@ Vec PetscCsrSolve::setupCsrRhs(const CsrRHS* csrRhs){
     return b;
 }
 
-void PetscCsrSolve::solveWithPETSc(const CsrSystem& system) {
+CellScalarField PetscCsrSolve::solveWithPETSc(const Mesh& mesh, const CsrSystem& system) {
     PetscInitialize(NULL, NULL, NULL, NULL);
 
     PetscInt n = system.getNRows();          
+
     // Wrap CSR into PETSc matrix
     Mat A = setupCsrLhs(system.getLhs());
+
     // Create vectors
     Vec b = setupCsrRhs(system.getRhs());
     Vec x;
@@ -42,14 +45,26 @@ void PetscCsrSolve::solveWithPETSc(const CsrSystem& system) {
     KSP ksp;
     KSPCreate(PETSC_COMM_SELF, &ksp);
     KSPSetOperators(ksp, A, A);
+    KSPSetTolerances(ksp, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, maxIts);
     KSPSetFromOptions(ksp);
     KSPSolve(ksp, b, x);
 
-    // Output solution
-    VecView(x, PETSC_VIEWER_STDOUT_WORLD);
+    // Extract solution into std::vector
+    CellScalarField solution(mesh, "u");
+    const PetscScalar *xArray;
+    VecGetArrayRead(x, &xArray);
+    for (PetscInt i = 0; i < n; ++i) {
+        solution[i] = static_cast<double>(xArray[i]);
+    }
+    VecRestoreArrayRead(x, &xArray);
 
     // Cleanup
     KSPDestroy(&ksp);
-    VecDestroy(&x); VecDestroy(&b); MatDestroy(&A);
+    VecDestroy(&x);
+    VecDestroy(&b);
+    MatDestroy(&A);
+
     PetscFinalize();
+
+    return solution; // Return solution vector
 }

@@ -39,11 +39,11 @@ struct pair_hash {
 class TripletSystem
 {
 public:
-TripletSystem(Mesh& mesh);
+TripletSystem(const Mesh& mesh);
 
-void addToLHS(Double value, CellID row, CellID column);
-void addToRHS(CellID row, Double value) {m_rhs[row] += value;}
-void setRHS(CellID row, Double value) {m_rhs[row] = value;}
+void addToLHS(const Double value, const CellID row, const CellID column);
+void addToRHS(const CellID row, const Double value) {m_rhs[row] += value;}
+void setRHS  (const CellID row, const Double value) {m_rhs[row] = value;}
 
 const CellID rhsSize(){return m_rhs.size();}
 const CellID lhsSize(){return m_value.size();}
@@ -52,6 +52,8 @@ const std::span<const Double> getValues() const {return m_value;}
 const std::span<const CellID> getRows() const {return m_row;}
 const std::span<const CellID> getColumns() const {return m_column;}
 const std::span<const Double> getRHS() const {return m_rhs;}
+
+void clear();
 
 private:
 std::vector<Double> m_value;
