@@ -41,7 +41,7 @@ class TripletSystem
 public:
 TripletSystem(const Mesh& mesh);
 
-void addToLHS(const Double value, const CellID row, const CellID column);
+void addToLHS(const CellID row, const CellID column, const Double value);
 void addToRHS(const CellID row, const Double value) {m_rhs[row] += value;}
 void setRHS  (const CellID row, const Double value) {m_rhs[row] = value;}
 

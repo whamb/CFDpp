@@ -32,11 +32,11 @@ const std::vector<std::unique_ptr<Node>>& getNodes() const { return m_nodes; }
 //**************************************//
 void addInteriorFace(const Node& node);
 void addBoundaryFace(const Node& node);
-const std::vector<std::unique_ptr<Face>>& getInteriorFaces() const { return m_interiorFaces; }
-const std::vector<std::unique_ptr<Face>>& getBoundaryFaces() const { return m_boundaryFaces; }
-std::span<Face*> getFaces() { return { m_faces.data(), m_faces.size() }; }
+const std::vector<Face*>& getInteriorFaces() const { return m_interiorFaces; }
+const std::vector<Face*>& getBoundaryFaces() const { return m_boundaryFaces; }
+const std::vector<std::unique_ptr<Face>>& getFaces() const  { return m_faces; }
 //Special version for llvm
-std::vector<const Face*> getFaces() const;
+//std::vector<const Face*> getFaces() const;
 const FaceID getNInteriorFaces() const {return m_interiorFaces.size();}
 const FaceID getNBoundaryFaces() const {return m_boundaryFaces.size();}
 const FaceID getNFaces() const {return m_faces.size();}
@@ -44,6 +44,7 @@ const std::vector<Double>& getFaceCenter() const {return m_faceCenter;}
 const std::vector<Double>& getFaceArea()   const {return m_faceArea;}
 const std::vector<Double>& getFaceNormal() const {return m_faceNormal;}
 void addFaceGeometry(const Node& node, const Face& face);
+void addFaceNormal(const Face& face);
 
 //**************************************//
 //********** Cell generation ***********//
@@ -73,9 +74,9 @@ std::vector<std::unique_ptr<Node>> m_nodes;
 //***********************************//
 //********** Face relative **********//
 //***********************************//
-std::vector<std::unique_ptr<Face>> m_interiorFaces;
-std::vector<std::unique_ptr<Face>> m_boundaryFaces;
-std::vector<Face*> m_faces;
+std::vector<Face*> m_interiorFaces;
+std::vector<Face*> m_boundaryFaces;
+std::vector<std::unique_ptr<Face>> m_faces;
 std::vector<Double> m_faceCenter;
 std::vector<Double> m_faceArea;
 std::vector<Double> m_faceNormal;

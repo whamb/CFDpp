@@ -6,7 +6,7 @@ TripletSystem::TripletSystem(const Mesh& mesh){
     m_rhs.resize(mesh.getNCells());
 }
 
-void TripletSystem::addToLHS(const Double value, const CellID row, const CellID column) {
+void TripletSystem::addToLHS(const CellID row, const CellID column, const Double value) {
     //Deal with the case the i,j index already created
     auto key = std::make_pair(row,column);
     auto found = m_indexMap.find(key);

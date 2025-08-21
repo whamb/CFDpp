@@ -56,13 +56,13 @@ void BurgersEqn::buildAdvectionTerm(const Mesh& mesh, TripletSystem& tripletSyst
     for(const auto& cell : cells){
         const double cellId = cell->getId();
         const auto& faceIds = cell->getFaceIds();
-        for(const auto& faceId : faceIds){
-            const auto& face = *faces[faceId]; 
+        for(const auto& fId : faceIds){
+            const auto& face = *(mesh.getFaces()[fId]); //Look up for neighbour using global indexing
             const auto& neighbourId = cell->getNghbrCell(face);
-            const auto& n = (cellId > neighbourId) ? normals[faceId] 
-                                                   : -normals[faceId];
+            const auto& n = (cellId > neighbourId) ? normals[fId] 
+                                                   : -normals[fId];
             
-            const double flux = m_uf[faceId] * n;
+            const double flux = m_uf[fId] * n;
             double upwindCoeff   = 0.5 * posMax(flux);
             double downwindCoeff = -0.5 * posMax(flux);
             

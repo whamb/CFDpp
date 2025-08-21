@@ -32,17 +32,21 @@ Mesh::Mesh(const Double lowerBound, const Double upperBound, const Double dx) {
 
     for (const auto& node : m_nodes) {
         if(std::abs(node->getX() - lowerBound) < 1e-10 || std::abs(node->getX() - upperBound) < 1e-10)
-            addInteriorFace(*node);
-        else 
             addBoundaryFace(*node);
+        else 
+            addInteriorFace(*node);
     }
 
     // For the moment, for 1D mesh
+    addBoundaryCell(0,1);
     for (FaceID i = 1; i < getNFaces() - 2; ++i) {
         addInteriorCell(i, i + 1);
     }
-    addBoundaryCell(0,1);
     addBoundaryCell(getNFaces()-2, getNFaces()-1);
+
+    for (const auto& face : m_faces) {
+        addFaceNormal(*face);
+    }
 
     assert(validate() && "Mesh failed consistency checks.");
     assert(m_cells.size() == getNCells()); 
@@ -65,33 +69,37 @@ void Mesh::addNode(const Double x) {
 void Mesh::addInteriorFace(const Node& node) {
     auto facePtr = std::make_unique<Face>(m_faces.size(), node.getId());
     Face* rawPtr = facePtr.get();
-    m_interiorFaces.push_back(std::move(facePtr));
-    m_faces.push_back(rawPtr);
+    m_interiorFaces.push_back(rawPtr);
+    m_faces.push_back(std::move(facePtr));
     addFaceGeometry(node, *rawPtr);
 }
 
 void Mesh::addBoundaryFace(const Node& node) {
     auto facePtr = std::make_unique<Face>(m_faces.size(), node.getId());
     Face* rawPtr = facePtr.get();
-    m_boundaryFaces.push_back(std::move(facePtr));
-    m_faces.push_back(rawPtr);
+    m_boundaryFaces.push_back(rawPtr);
+    m_faces.push_back(std::move(facePtr));
     addFaceGeometry(node, *rawPtr);
 }
 
-std::vector<const Face*> Mesh::getFaces() const{
+/*std::vector<const Face*> Mesh::getFaces() const{
     std::vector<const Face*> view;
     for (Face* f : m_faces)
         view.push_back(f);
     return view;
-}
+}*/
 
 void Mesh::addFaceGeometry(const Node& node, const Face& face) {
     m_faceCenter.push_back(node.getX());
     m_faceArea.push_back(defaultArea);
+}
+
+void Mesh::addFaceNormal(const Face& face) {
     // Orientation of face normal : lowerId -> higherId
     (face.getCellId()[0] < face.getCellId()[1]) ? m_faceNormal.push_back(defaultNormal)
                                                 : m_faceNormal.push_back(-defaultNormal); 
 }
+
 
 /**
  * @brief Creates a cell defined by two adjacent face IDs.
@@ -161,6 +169,22 @@ bool Mesh::validate() const {
         if (count > 2) {
             std::cerr << "Face " << i << " has >2 cells (should never happen)\n";
             valid = false;
+        }
+    }
+
+    // Check for connectivity
+    for (size_t i = 0; i < m_cells.size(); ++i){
+        const auto cell = m_cells[i];
+        const auto cellId = cell->getId();
+        
+        for(const auto faceId : cell->getFaceIds()){
+            const auto& face = *m_faces[faceId];
+            const auto& nghbrCellId = face.getCellId();
+            if(nghbrCellId[0] != cellId && nghbrCellId[1] != cellId){
+                std::cerr << "Cell " << cellId << " has wrong connectivity with face "
+                                               << faceId << "\n";
+                valid = false;
+            }
         }
     }
 
