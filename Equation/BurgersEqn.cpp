@@ -43,7 +43,7 @@ void BurgersEqn::initialiseSolution(const Mesh& mesh){
 void BurgersEqn::buildBurgers(const Mesh& mesh, TripletSystem& tripletSystem){
     updateFaceFlux    (mesh);
     //buildAdvectionTerm(mesh, tripletSystem);
-    //buildViscousTerm  (mesh, tripletSystem);
+    buildViscousTerm  (mesh, tripletSystem);
     buildTransientTerm(mesh, tripletSystem);
     updateBc          (mesh,tripletSystem);
 }
@@ -73,9 +73,10 @@ void BurgersEqn::buildAdvectionTerm(const Mesh& mesh, TripletSystem& tripletSyst
 }
 
 void BurgersEqn::buildViscousTerm(const Mesh& mesh, TripletSystem& tripletSystem){
-    const auto& cells = mesh.getInteriorCells();
-    const auto& faces = mesh.getInteriorFaces();
-    const auto& area  = mesh.getFaceArea();
+    const auto& cells  = mesh.getInteriorCells();
+    const auto& faces  = mesh.getInteriorFaces();
+    const auto& center = mesh.getFaceCenter();
+    const auto& area   = mesh.getFaceArea();
 
     for(const auto& cell : cells){
         const auto& cellId = cell->getId();
@@ -84,7 +85,8 @@ void BurgersEqn::buildViscousTerm(const Mesh& mesh, TripletSystem& tripletSystem
             const auto& face = *(mesh.getFaces()[fId]); //Look up for neighbour using global indexing
             const auto& neighbourId = cell->getNghbrCell(face);
             
-            Double diffCoeff = m_nu * area[fId];
+            Double dx = std::abs(center[cellId] - center[neighbourId]);
+            Double diffCoeff = m_nu * area[fId] / dx;
             
             tripletSystem.addToLHS(cellId, cellId, -diffCoeff);
             tripletSystem.addToLHS(cellId, neighbourId, diffCoeff);
@@ -93,7 +95,7 @@ void BurgersEqn::buildViscousTerm(const Mesh& mesh, TripletSystem& tripletSystem
 }
 
 void BurgersEqn::buildTransientTerm(const Mesh& mesh, TripletSystem& tripletSystem){
-    const auto& cells = mesh.getInteriorCells();
+    const auto& cells = mesh.getCells();
     const auto& vol  = mesh.getCellVolume();
 
     for(const auto& cell : cells){

@@ -11,7 +11,7 @@ int main(){
     Double tFinal = 1.0;
     Double dt = 0.01;
     Double nu = 1.0;
-    Mesh mesh(0.0, 10.0, 1.0); 
+    Mesh mesh(0.0, 1.0, 0.1); 
 
     //std::cout << "Print cells: " << "\n";
     //for(const auto cell : mesh.getCells()){
