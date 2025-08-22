@@ -29,7 +29,7 @@ Vec PetscCsrSolve::setupCsrRhs(const CsrRHS* csrRhs){
 }
 
 CellScalarField PetscCsrSolve::solveWithPETSc(const Mesh& mesh, const CsrSystem& system) {
-    PetscInitialize(NULL, NULL, NULL, NULL);
+    //PetscInitialize(NULL, NULL, NULL, NULL);
 
     PetscInt n = system.getNRows();          
 
@@ -64,7 +64,7 @@ CellScalarField PetscCsrSolve::solveWithPETSc(const Mesh& mesh, const CsrSystem&
     VecDestroy(&b);
     MatDestroy(&A);
 
-    PetscFinalize();
+    //PetscFinalize();
 
     return solution; // Return solution vector
 }

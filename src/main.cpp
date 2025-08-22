@@ -10,8 +10,8 @@
 int main(){
     Double tFinal = 1.0;
     Double dt = 0.01;
-    Double nu = 0.001;
-    Mesh mesh(0.0, 3.0, 1.0); 
+    Double nu = 1.0;
+    Mesh mesh(0.0, 10.0, 1.0); 
 
     //std::cout << "Print cells: " << "\n";
     //for(const auto cell : mesh.getCells()){
@@ -33,7 +33,10 @@ int main(){
 
     BurgersEqn burgersEqn(mesh, dt, nu);
     SolveBurgers solveBurgers(mesh, tFinal, dt);
+
+    PetscInitialize(NULL, NULL, NULL, NULL);
     solveBurgers.cyclingStrategy(mesh, burgersEqn);
+    PetscFinalize();
     
     return 0;
 }
