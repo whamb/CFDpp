@@ -22,7 +22,7 @@ Mat PetscCsrSolve::setupCsrLhs(const CsrLHS* csrLhs){
 
 Vec PetscCsrSolve::setupCsrRhs(const CsrRHS* csrRhs){
     auto& rhsVec = csrRhs->m_csrRhs;        // size n
-    PetscInt n =   csrRhs->m_csrRhs.size() - 1;
+    PetscInt n =   csrRhs->m_csrRhs.size();
     Vec b;
     VecCreateSeqWithArray(PETSC_COMM_SELF, 1, n, rhsVec.data(), &b);
     return b;

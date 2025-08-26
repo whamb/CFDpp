@@ -9,9 +9,12 @@
 
 int main(){
     Double tFinal = 1.0;
-    Double dt = 0.01;
+    Double dt = 0.0025;
     Double nu = 1.0;
-    Mesh mesh(0.0, 1.0, 0.1); 
+    //Mesh(const Double lowerBound, const Double upperBound, const Double dx)
+    Mesh mesh(0.0, 1, 0.1); 
+    const auto& cells = mesh.getCells();
+    const auto& faces = mesh.getFaces();
 
     //std::cout << "Print cells: " << "\n";
     //for(const auto cell : mesh.getCells()){

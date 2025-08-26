@@ -115,8 +115,8 @@ void Mesh::addInteriorCell(FaceID f1, FaceID f2) {
     
     auto cellPtr = std::make_unique<Cell>(m_cells.size(), f1, f2);
     Cell* rawPtr = cellPtr.get();
-    m_interiorCells.push_back(std::move(cellPtr));
-    m_cells.push_back(rawPtr);
+    m_interiorCells.push_back(rawPtr);
+    m_cells.push_back(std::move(cellPtr));
 
     addCellGeometry(f1,f2);
     
@@ -128,8 +128,8 @@ void Mesh::addBoundaryCell(FaceID f1, FaceID f2) {
     
     auto cellPtr = std::make_unique<Cell>(m_cells.size(), f1, f2);
     Cell* rawPtr = cellPtr.get();
-    m_boundaryCells.push_back(std::move(cellPtr));
-    m_cells.push_back(rawPtr);
+    m_boundaryCells.push_back(rawPtr);
+    m_cells.push_back(std::move(cellPtr));
 
     addCellGeometry(f1,f2);
     
@@ -138,13 +138,6 @@ void Mesh::addBoundaryCell(FaceID f1, FaceID f2) {
 void Mesh::addCellGeometry(const FaceID f1, const FaceID f2) {
     m_cellCenter.push_back(0.5 * (m_faceCenter[f1] + m_faceCenter[f2]));
     m_cellVolume.push_back(std::abs(m_faceCenter[f1] - m_faceCenter[f2]));
-}
-
-std::vector<const Cell*> Mesh::getCells() const {
-    std::vector<const Cell*> view;
-    for (Cell* c : m_cells)
-        view.push_back(c);
-    return view;
 }
 
 /**
@@ -174,8 +167,8 @@ bool Mesh::validate() const {
 
     // Check for connectivity
     for (size_t i = 0; i < m_cells.size(); ++i){
-        const auto cell = m_cells[i];
-        const auto cellId = cell->getId();
+        const auto& cell = m_cells[i];
+        const auto& cellId = cell->getId();
         
         for(const auto faceId : cell->getFaceIds()){
             const auto& face = *m_faces[faceId];

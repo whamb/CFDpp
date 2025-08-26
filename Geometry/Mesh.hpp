@@ -51,11 +51,11 @@ void addFaceNormal(const Face& face);
 //**************************************//
 void addInteriorCell(FaceID f1, FaceID f2);
 void addBoundaryCell(FaceID f1, FaceID f2);
-const std::vector<std::unique_ptr<Cell>>& getInteriorCells() const { return m_interiorCells; }
-const std::vector<std::unique_ptr<Cell>>& getBoundaryCells() const { return m_boundaryCells; }
-std::span<Cell*> getCells() { return { m_cells.data(), m_cells.size() }; }
+const std::vector<Cell*>& getInteriorCells() const { return m_interiorCells; }
+const std::vector<Cell*>& getBoundaryCells() const { return m_boundaryCells; }
+const std::vector<std::unique_ptr<Cell>>& getCells() const  { return m_cells; }
 //Special version for llvm
-std::vector<const Cell*> getCells() const;
+//std::vector<const Cell*> getCells() const;
 const FaceID getNInteriorCells() const {return m_interiorCells.size();}
 const FaceID getNBoundaryCells() const {return m_boundaryCells.size();}
 const FaceID getNCells() const {return m_cells.size();}
@@ -84,9 +84,9 @@ std::vector<Double> m_faceNormal;
 //***********************************//
 //********** Cell relative **********//
 //***********************************//
-std::vector<std::unique_ptr<Cell>> m_interiorCells;
-std::vector<std::unique_ptr<Cell>> m_boundaryCells;
-std::vector<Cell*> m_cells;
+std::vector<Cell*> m_interiorCells;
+std::vector<Cell*> m_boundaryCells;
+std::vector<std::unique_ptr<Cell>> m_cells;
 std::vector<Double> m_cellCenter;
 std::vector<Double> m_cellVolume;
 

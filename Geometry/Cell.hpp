@@ -33,13 +33,14 @@ bool isBoundary(){return (m_faceIds[0] == -1 || m_faceIds[0] == -1) ? true
 const CellID getNghbrCell(const Face& face) const;
 
 friend std::ostream& operator<<(std::ostream& os, Cell& cell) {
-    os << "Cell id =  " << cell.getId() << ": Face0 Id = " << cell.m_faceIds[0]
+    os << "Cell id =  "   << cell.getId()
+       << ": Face0 Id = " << cell.m_faceIds[0]
        << ", Face1 Id = " << cell.m_faceIds[1];
     return os;
 }
 
 private:
-std::array<FaceID, 2> m_faceIds { -1, -1 };
+std::array<FaceID, 2> m_faceIds {-1, -1};
 };
 
 #endif // CELL_h

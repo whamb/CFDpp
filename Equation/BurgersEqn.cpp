@@ -49,22 +49,25 @@ void BurgersEqn::buildBurgers(const Mesh& mesh, TripletSystem& tripletSystem){
 }
 
 void BurgersEqn::buildAdvectionTerm(const Mesh& mesh, TripletSystem& tripletSystem){
-    const auto& cells         = mesh.getInteriorCells();
-    const auto& faces         = mesh.getInteriorFaces();
+    const auto& cells         = mesh.getCells();
+    const auto& faces         = mesh.getFaces();
     const auto& normals       = mesh.getFaceNormal();
     
     for(const auto& cell : cells){
         const auto& cellId = cell->getId();
         const auto& faceIds = cell->getFaceIds();
         for(const auto& fId : faceIds){
-            const auto& face = *(mesh.getFaces()[fId]); //Look up for neighbour using global indexing
+            const auto& face = *(faces[fId]); //Look up for neighbour using global indexing
             const auto& neighbourId = cell->getNghbrCell(face);
             const auto& n = (cellId > neighbourId) ? normals[fId] 
                                                    : -normals[fId];
+            if(neighbourId == -1){
+                continue;                     //Check empty cell for boundary faces
+            }
             
-            const double flux = m_uf[fId] * n;
-            double upwindCoeff   = 0.5 * posMax(flux);
-            double downwindCoeff = -0.5 * posMax(flux);
+            const Double flux = m_uf[fId] * n;
+            Double upwindCoeff   = 0.5 * posMax(flux);
+            Double downwindCoeff = -0.5 * posMax(flux);
             
             tripletSystem.addToLHS(cellId, cellId, upwindCoeff);
             tripletSystem.addToLHS(cellId, neighbourId, downwindCoeff);
@@ -73,30 +76,33 @@ void BurgersEqn::buildAdvectionTerm(const Mesh& mesh, TripletSystem& tripletSyst
 }
 
 void BurgersEqn::buildViscousTerm(const Mesh& mesh, TripletSystem& tripletSystem){
-    const auto& cells  = mesh.getInteriorCells();
-    const auto& faces  = mesh.getInteriorFaces();
-    const auto& center = mesh.getFaceCenter();
+    const auto& cells  = mesh.getCells();
+    const auto& faces  = mesh.getFaces();
+    const auto& center = mesh.getCellCenter();
     const auto& area   = mesh.getFaceArea();
 
     for(const auto& cell : cells){
         const auto& cellId = cell->getId();
         const auto& faceIds = cell->getFaceIds();
         for(const auto& fId : faceIds){
-            const auto& face = *(mesh.getFaces()[fId]); //Look up for neighbour using global indexing
+            const auto& face = *(faces[fId]); //Look up for neighbour using global indexing
             const auto& neighbourId = cell->getNghbrCell(face);
+            if(neighbourId == -1){
+                continue;                     //Check empty cell for boundary faces
+            }
             
             Double dx = std::abs(center[cellId] - center[neighbourId]);
             Double diffCoeff = m_nu * area[fId] / dx;
             
-            tripletSystem.addToLHS(cellId, cellId, -diffCoeff);
-            tripletSystem.addToLHS(cellId, neighbourId, diffCoeff);
+            tripletSystem.addToLHS(cellId, cellId, diffCoeff);
+            tripletSystem.addToLHS(cellId, neighbourId, -diffCoeff);
         }
     }
 }
 
 void BurgersEqn::buildTransientTerm(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells = mesh.getCells();
-    const auto& vol  = mesh.getCellVolume();
+    const auto& vol   = mesh.getCellVolume();
 
     for(const auto& cell : cells){
         const CellID cellId = cell->getId();
@@ -108,23 +114,57 @@ void BurgersEqn::buildTransientTerm(const Mesh& mesh, TripletSystem& tripletSyst
 }
 
 void BurgersEqn::updateBc(const Mesh& mesh, TripletSystem& tripletSystem){
-    const auto& cells         = mesh.getBoundaryCells();
-    const auto& leftBndCell   = cells[0]->getId();
-    const auto& rightBndCell  = cells[1]->getId();
+    const auto& bndCells     = mesh.getBoundaryCells();
+    const auto& cell0        = bndCells[0];
+    const auto& cell1        = bndCells[1];
+    const auto& cell0Id      = cell0->getId();
+    const auto& cell1Id      = cell1->getId();
+    const auto& cellCenter   = mesh.getCellCenter();
+    const auto& bndFaces     = mesh.getBoundaryFaces();
+    const auto& face0        = bndFaces[0];
+    const auto& face1        = bndFaces[1];
+    const auto& faceCenter   = mesh.getFaceCenter();
+    const auto& area         = mesh.getFaceArea();
 
-    // Left boundary
-    const Double penalty = 1.0;
-    tripletSystem.addToLHS(leftBndCell, leftBndCell, penalty);
-    tripletSystem.addToLHS(leftBndCell, rightBndCell, -penalty);
+    const Double dx = std::abs(cellCenter[0] - faceCenter[0])
+                    + std::abs(cellCenter[1] - faceCenter[1]);
+    //TODO: check if area[face0] == area[face1]
+    Double diffCoeff = m_nu * area[face0->getId()] / dx;
+
+    // Cell0
+    tripletSystem.addToLHS(cell0Id, cell0Id, -diffCoeff);
+    tripletSystem.addToLHS(cell0Id, cell1Id, diffCoeff);
+    
+    // Cell1
+    tripletSystem.addToLHS(cell1Id, cell1Id, -diffCoeff);
+    tripletSystem.addToLHS(cell1Id, cell0Id, diffCoeff);
+    
 }
 
 void BurgersEqn::updateFaceFlux(const Mesh& mesh){
     const auto& interiorFace       = mesh.getInteriorFaces();
+    const auto& boundaryFace       = mesh.getBoundaryFaces();
+    const auto& area               = mesh.getFaceArea();
 
     for(const auto& face : interiorFace){
         const FaceID faceId = face->getId();
         const CellID c0 = face->getCellId()[0];
         const CellID c1 = face->getCellId()[1];
-        m_uf[faceId] = 0.5 * (m_uf[c0] + m_uf[c1]);
+        const Double fArea = area[faceId];
+        const Double uf0 = m_u[c0] * fArea;
+        const Double uf1 = m_u[c1] * fArea;
+        m_uf[faceId] = 0.5 * (uf0 + uf1);
+    }
+
+    //Boundary faces 
+    // TODO: duplicated code
+    for(const auto& face : boundaryFace){
+        const FaceID faceId = face->getId();
+        const CellID c0 = face->getCellId()[0];
+        const CellID c1 = face->getCellId()[1];
+        const Double fArea = area[faceId];
+        const Double uf0 = m_u[c0] * fArea;
+        const Double uf1 = m_u[c1] * fArea;
+        m_uf[faceId] = 0.5 * (uf0 + uf1);
     }
 }

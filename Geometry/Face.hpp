@@ -34,14 +34,15 @@ bool isBoundary(){return (m_cellIds[0] == -1 || m_cellIds[0] == -1) ? true
 void assignCell(CellID id);
 
 friend std::ostream& operator<<(std::ostream& os, Face& face) {
-    os << "Face id =  " << face.getId()
-       << ": Node Id = " << face.m_nodeId << "\n";
+    os << "Face id =  "   << face.getId()
+       << ": Cell0 Id = " << face.m_cellIds[0]
+       << ", Cell1 Id = " << face.m_cellIds[1];
     return os;
 }
 
 private:
 NodeID m_nodeId;
-std::array<CellID, 2> m_cellIds { -1, -1 };
+std::array<CellID, 2> m_cellIds {-1, -1};
 };
 
 #endif // FACE_h
