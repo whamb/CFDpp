@@ -23,9 +23,7 @@ Face(const FaceID id, const NodeID nodeId)
     assert(isValid() && "Invalid Face \n");
 }
 
-const std::array<CellID, 2> getCellId() const {
-    //std::cout << "Face Id = " << this->getId() << ": " << m_cellIds[0] << ", " << m_cellIds[1] << "\n";
-    return m_cellIds;}
+const std::array<CellID, 2> getCellId() const {return m_cellIds;}
 void setCell(int index, CellID cellId);
 bool isValid() const {return (m_nodeId >= 0);}
 bool isBoundary(){return (m_cellIds[0] == -1 || m_cellIds[0] == -1) ? true

@@ -42,7 +42,7 @@ void BurgersEqn::initialiseSolution(const Mesh& mesh){
 
 void BurgersEqn::buildBurgers(const Mesh& mesh, TripletSystem& tripletSystem){
     updateFaceFlux    (mesh);
-    //buildAdvectionTerm(mesh, tripletSystem);
+    buildAdvectionTerm(mesh, tripletSystem);
     buildViscousTerm  (mesh, tripletSystem);
     buildTransientTerm(mesh, tripletSystem);
     updateBc          (mesh,tripletSystem);
@@ -123,21 +123,41 @@ void BurgersEqn::updateBc(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& bndFaces     = mesh.getBoundaryFaces();
     const auto& face0        = bndFaces[0];
     const auto& face1        = bndFaces[1];
+    const auto& face0Id      = face0->getId();
+    const auto& face1Id      = face1->getId();
     const auto& faceCenter   = mesh.getFaceCenter();
     const auto& area         = mesh.getFaceArea();
+    const auto& normals      = mesh.getFaceNormal();
 
+    // Advection part
+    const auto& n0 = -normals[face0Id];
+    const auto& n1 = -normals[face1Id];
+    const Double advectionFlux0 = m_uf[face0Id] * n0;
+    Double upwindCoeff0   = 0.5 * posMax(advectionFlux0);
+    Double downwindCoeff0 = -0.5 * posMax(advectionFlux0);
+    const Double advectionFlux1 = m_uf[face1Id] * n1;
+    Double upwindCoeff1   = 0.5 * posMax(advectionFlux1);
+    Double downwindCoeff1 = -0.5 * posMax(advectionFlux1);
+    
+    //Cell 0
+    tripletSystem.addToLHS(cell0Id, cell0Id, upwindCoeff0);
+    tripletSystem.addToLHS(cell0Id, cell1Id, downwindCoeff0);
+    //Cell 1
+    tripletSystem.addToLHS(cell1Id, cell1Id, upwindCoeff1);
+    tripletSystem.addToLHS(cell1Id, cell0Id, downwindCoeff1);
+
+    // Diffusion part
     const Double dx = std::abs(cellCenter[0] - faceCenter[0])
                     + std::abs(cellCenter[1] - faceCenter[1]);
     //TODO: check if area[face0] == area[face1]
     Double diffCoeff = m_nu * area[face0->getId()] / dx;
 
     // Cell0
-    tripletSystem.addToLHS(cell0Id, cell0Id, -diffCoeff);
-    tripletSystem.addToLHS(cell0Id, cell1Id, diffCoeff);
-    
+    tripletSystem.addToLHS(cell0Id, cell0Id, diffCoeff);
+    tripletSystem.addToLHS(cell0Id, cell1Id, -diffCoeff);
     // Cell1
-    tripletSystem.addToLHS(cell1Id, cell1Id, -diffCoeff);
-    tripletSystem.addToLHS(cell1Id, cell0Id, diffCoeff);
+    tripletSystem.addToLHS(cell1Id, cell1Id, diffCoeff);
+    tripletSystem.addToLHS(cell1Id, cell0Id, -diffCoeff);
     
 }
 
