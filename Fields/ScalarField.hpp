@@ -3,7 +3,6 @@
 
 #include <vector>
 
-#include <Mesh.hpp>
 #include <Types.hpp>
 
 /**
@@ -12,25 +11,22 @@
  * Provides storage and indexed access to field values, along with a label for identification.
  * Used to store solutions (e.g., velocity, pressure) or intermediate quantities in PDE solvers.
  */
-template<typename Container = std::vector<Double>>
 class ScalarField
 {
 public:
-ScalarField(const std::string_view name) : m_name(name){};
 
-Container& getData(){return m_field;}
-auto& operator[](size_t i) { return m_field[i]; }
-
-CellID getSize() const {return m_field.size();}
-const std::string getName() const { return m_name; }
-
-~ScalarField() = default;
-
-protected: 
-Container m_field;
+    ScalarField(const std::string name, const std::size_t size) : m_name(std::move(name)), m_field(size)
+    {};
+    
+    const std::vector<Double>&    data() const { return m_field; }
+    std::size_t                   size() const { return m_field.size(); }
+    std::string_view              name() const { return m_name; }
+    Double&                       operator[](size_t i) { return m_field[i]; }
+    const Double&                 operator[](size_t i) const { return m_field[i]; }
 
 private:
-std::string m_name;
+    std::string m_name;
+    std::vector<Double> m_field;
 };
 
 #endif // SCALARFIELD_HPP

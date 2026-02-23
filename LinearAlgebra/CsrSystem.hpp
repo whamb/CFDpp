@@ -4,7 +4,6 @@
 #include <span>
 #include <vector>
 
-#include <CellScalarField.hpp>
 #include <LinearSystem.hpp>
 #include <LinSolverType.hpp>
 #include <TripletSystem.hpp>
@@ -84,8 +83,6 @@ const CellID getNRows() const {return m_compressedRow.size() - 1;}
 
 private:
 void convertTripletToCsr(TripletSystem& tripletSystem);
-
-//CellScalarField solveLinSystem(double linTol, LinSolverType linSolver) override;
 
 protected:
 std::vector<Double> m_value;

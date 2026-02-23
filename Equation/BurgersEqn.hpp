@@ -3,10 +3,9 @@
 
 #include <vector>
 
-#include "CellScalarField.hpp"
 #include "Equation.hpp"
 #include "Expressions.hpp"
-#include "FaceScalarField.hpp"
+#include "ScalarField.hpp"
 #include "Mesh.hpp"
 #include "TripletSystem.hpp"
 #include "Types.hpp"
@@ -24,9 +23,8 @@ class BurgersEqn
 {
 public:
 BurgersEqn(Mesh& mesh, Double dt, Double nu): 
-    m_size(mesh.getNCells()),
-    m_u(mesh, "u"),
-    m_uf(mesh, "mdot"),
+    m_u("u", mesh.getNCells()),
+    m_uf("mdot", mesh.getNFaces()),
     m_dt(dt), 
     m_nu(nu)
     {}
@@ -42,12 +40,12 @@ void buildTransientTerm (const Mesh& mesh, TripletSystem& tripletSystem);
 void updateBc      (const Mesh& mesh, TripletSystem& tripletSystem);
 void updateFaceFlux(const Mesh& mesh);
 
-CellScalarField& getU(){return m_u;}
+ScalarField& getU(){return m_u;}
 
 private:
-Double m_size;
-CellScalarField m_u;
-FaceScalarField m_uf;
+Double m_nFace;
+ScalarField m_u;
+ScalarField m_uf;
 Double m_dt;
 Double m_nu;
 };

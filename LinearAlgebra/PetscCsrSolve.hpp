@@ -4,6 +4,7 @@
 #include <petscksp.h>
 
 #include <CsrSystem.hpp>
+#include <ScalarField.hpp>
 
 /**
  * @brief Interface to solve a CSR-formatted linear system using PETSc.
@@ -20,7 +21,7 @@ public:
  * 
  * @param system A reference to the CSR system to be solved. Must have valid matrix and RHS.
  */
-static CellScalarField solveWithPETSc(const Mesh& mesh, const CsrSystem& system);
+static ScalarField solveWithPETSc(const Mesh& mesh, const CsrSystem& system);
 
 static Mat setupCsrLhs(const CsrLHS* csrLhs);
 static Vec setupCsrRhs(const CsrRHS* csrLhs);

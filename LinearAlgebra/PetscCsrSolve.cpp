@@ -3,6 +3,7 @@
 #include <Constants.hpp>
 #include <CsrSystem.hpp>
 #include <PetscCsrSolve.hpp>
+#include <ScalarField.hpp>
 
 Mat PetscCsrSolve::setupCsrLhs(const CsrLHS* csrLhs){
     auto& rowPtr = csrLhs->m_compressedRow; // size n+1
@@ -28,7 +29,7 @@ Vec PetscCsrSolve::setupCsrRhs(const CsrRHS* csrRhs){
     return b;
 }
 
-CellScalarField PetscCsrSolve::solveWithPETSc(const Mesh& mesh, const CsrSystem& system) {
+ScalarField PetscCsrSolve::solveWithPETSc(const Mesh& mesh, const CsrSystem& system) {
     //PetscInitialize(NULL, NULL, NULL, NULL);
 
     PetscInt n = system.getNRows();          
@@ -50,7 +51,7 @@ CellScalarField PetscCsrSolve::solveWithPETSc(const Mesh& mesh, const CsrSystem&
     KSPSolve(ksp, b, x);
 
     // Extract solution into std::vector
-    CellScalarField solution(mesh, "u");
+    ScalarField solution("u", mesh.getNCells());
     const PetscScalar *xArray;
     VecGetArrayRead(x, &xArray);
     for (PetscInt i = 0; i < n; ++i) {
