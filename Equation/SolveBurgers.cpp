@@ -1,5 +1,5 @@
-#include "PetscCsrSolve.hpp"
-#include "SolveBurgers.hpp"
+#include <PetscCsrSolve.hpp>
+#include <SolveBurgers.hpp>
 
 void SolveBurgers::cyclingStrategy(const Mesh& mesh, BurgersEqn& burgersEqn){
     burgersEqn.initialiseSolution(mesh);

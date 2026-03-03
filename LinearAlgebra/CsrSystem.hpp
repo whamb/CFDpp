@@ -4,8 +4,6 @@
 #include <span>
 #include <vector>
 
-#include <LinearSystem.hpp>
-#include <LinSolverType.hpp>
 #include <TripletSystem.hpp>
 
 /**
@@ -19,16 +17,18 @@
  * This struct is a lightweight wrapper that enables matrix-vector operations and solver access.
  */
 
-struct CsrLHS : public LHS{
-std::span<const Double> m_value;
-std::span<const CellID> m_columnIdx;
-std::span<const CellID> m_compressedRow;
+struct Lhs {
+    std::span<const Double> m_value;
+    std::span<const CellID> m_columnIdx;
+    std::span<const CellID> m_compressedRow;
 
-CsrLHS(std::span<const Double> value,
-       std::span<const CellID> columnIdx,
-       std::span<const CellID> compressedRow) : m_value(value),
-                                                m_columnIdx(columnIdx),
-                                                m_compressedRow(compressedRow){};
+    Lhs(std::span<const Double> value,
+        std::span<const CellID> columnIdx,
+        std::span<const CellID> compressedRow) : 
+        m_value(value),
+        m_columnIdx(columnIdx),
+        m_compressedRow(compressedRow)
+    {};
 };
 
 /**
@@ -38,10 +38,11 @@ CsrLHS(std::span<const Double> value,
  * linear systems of the form Ax = b.
  */
 
-struct CsrRHS : public RHS{
-std::span<const Double> m_csrRhs;
+struct Rhs {
+    std::span<const Double> m_rhs;
 
-CsrRHS(std::span<const Double> rhs) : m_csrRhs(rhs){};
+    Rhs(std::span<const Double> rhs) : m_rhs(rhs)
+    {};
 };
 
 /**
@@ -57,39 +58,38 @@ CsrRHS(std::span<const Double> rhs) : m_csrRhs(rhs){};
  * - Ready for integration with iterative solvers (e.g. Jacobi, BiCGSTAB).
  * - Read-only views of matrix/vector via `std::span`.
  */
-class CsrSystem : public LinearSystem
+class CsrSystem
 {
 public:
-CsrSystem(TripletSystem& tripletSystem): LinearSystem(nullptr, nullptr)
-{   
-    convertTripletToCsr(tripletSystem);
-    m_lhs = std::make_unique<CsrLHS>(
-        std::span<const Double>(m_value),
-        std::span<const CellID>(m_columnIdx),
-        std::span<const CellID>(m_compressedRow)
-    );
-    
-    m_rhs = std::make_unique<CsrRHS>(
-        std::span<const Double> (m_csrRhs)
-    );
-}
+    CsrSystem(TripletSystem& tripletSystem)
+    {   
+        convertTripletToCsr(tripletSystem);
+        m_lhs = std::make_unique<Lhs>(
+            std::span<const Double> (m_value),
+            std::span<const CellID> (m_columnIdx),
+            std::span<const CellID> (m_compressedRow)
+        );
 
-const CsrLHS* getLhs() const {return dynamic_cast<const CsrLHS*>(m_lhs.get());}
-const CsrRHS* getRhs() const {return dynamic_cast<const CsrRHS*>(m_rhs.get());}
+        m_rhs = std::make_unique<Rhs>(
+            std::span<const Double> (m_csrRhs)
+        );
+    }
 
-const CellID rhsSize() const {return m_csrRhs.size();}
-const CellID lhsSize() const {return m_value.size();}
-const CellID getNRows() const {return m_compressedRow.size() - 1;}
+    const Lhs* lhs() const { return dynamic_cast<const Lhs*>(m_lhs.get()); }
+    const Rhs* rhs() const { return dynamic_cast<const Rhs*>(m_rhs.get()); }
+
+    CellID rhsSize() const { return m_csrRhs.size(); }
+    CellID lhsSize() const { return m_value.size(); }
+    CellID nRows()   const { return m_compressedRow.size() - 1; }
 
 private:
-void convertTripletToCsr(TripletSystem& tripletSystem);
-
-protected:
-std::vector<Double> m_value;
-std::vector<CellID> m_columnIdx;
-std::vector<CellID> m_compressedRow;
-std::vector<Double> m_csrRhs;
-
+    std::unique_ptr<Lhs> m_lhs;
+    std::unique_ptr<Rhs> m_rhs;
+    std::vector<Double>  m_value;
+    std::vector<CellID>  m_columnIdx;
+    std::vector<CellID>  m_compressedRow;
+    std::vector<Double>  m_csrRhs;
+    void convertTripletToCsr(TripletSystem& tripletSystem);
 };
 
 #endif //CSRSYSTEM

@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <array>
 
-#include <Geometry.hpp>
 #include <Node.hpp>
 #include <Types.hpp>
 
@@ -15,32 +14,29 @@
  * It stores topological information used for flux calculations and mesh connectivity.
  * Inherits a unique ID from the Geometry base class.
  */
-class Face : public Geometry
+class Face
 {
 public:
-Face(const FaceID id, const NodeID nodeId)
-    : Geometry(id), m_nodeId(nodeId) {
-    assert(isValid() && "Invalid Face \n");
-}
+    Face() : m_id(-1), m_nodeId(-1), m_cellIds({-1,-1})
+    {}
+    Face(const FaceID id, const NodeID nodeId) : m_id(id), m_nodeId(nodeId), m_cellIds({-1,-1}) {
+        assert(isValid() && "Invalid Face \n"); 
+    }
 
-const std::array<CellID, 2> getCellId() const {return m_cellIds;}
-void setCell(int index, CellID cellId);
-bool isValid() const {return (m_nodeId >= 0);}
-bool isBoundary(){return (m_cellIds[0] == -1 || m_cellIds[0] == -1) ? true
-                                                                    : false;}
+    FaceID id() const { return m_id; }
+    void  assignCell(CellID id);
 
-void assignCell(CellID id);
+    const std::array<CellID, 2> cellId() const {return m_cellIds;}
 
-friend std::ostream& operator<<(std::ostream& os, Face& face) {
-    os << "Face id =  "   << face.getId()
-       << ": Cell0 Id = " << face.m_cellIds[0]
-       << ", Cell1 Id = " << face.m_cellIds[1];
-    return os;
-}
+    bool  isValid() const {return (m_nodeId >= 0);}
+
+    bool  isBoundary() const {return (m_cellIds[0] == -1 || m_cellIds[0] == -1) ? true
+                                                                                : false;}
 
 private:
-NodeID m_nodeId;
-std::array<CellID, 2> m_cellIds {-1, -1};
+    FaceID m_id;
+    NodeID m_nodeId;
+    std::array<CellID, 2> m_cellIds;
 };
 
 #endif // FACE_h

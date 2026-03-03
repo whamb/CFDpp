@@ -1,13 +1,15 @@
 #include <iterator>
+#include <iostream>
 #include <vector>
 #include <math.h>
+#include <stdexcept>
 
-#include "Cell.hpp"
-#include "Constants.hpp"
-#include "Face.hpp"
-#include "Mesh.hpp"
-#include "Node.hpp"
-#include "Types.hpp"
+#include <Cell.hpp>
+#include <Constants.hpp>
+#include <Face.hpp>
+#include <Mesh.hpp>
+#include <Node.hpp>
+#include <Types.hpp>
 
 /**
  * @brief Constructs a structured 1D mesh from given domain bounds and spacing.
@@ -31,7 +33,7 @@ Mesh::Mesh(const Double lowerBound, const Double upperBound, const Double dx) {
     addNode(upperBound);
 
     for (const auto& node : m_nodes) {
-        if(std::abs(node->getX() - lowerBound) < 1e-10 || std::abs(node->getX() - upperBound) < 1e-10)
+        if(std::abs(node->x() - lowerBound) < 1e-10 || std::abs(node->x() - upperBound) < 1e-10)
             addBoundaryFace(*node);
         else 
             addInteriorFace(*node);
@@ -39,17 +41,17 @@ Mesh::Mesh(const Double lowerBound, const Double upperBound, const Double dx) {
 
     // For the moment, for 1D mesh
     addBoundaryCell(0,1);
-    for (FaceID i = 1; i < getNFaces() - 2; ++i) {
+    for (FaceID i = 1; i < nFaces() - 2; ++i) {
         addInteriorCell(i, i + 1);
     }
-    addBoundaryCell(getNFaces()-2, getNFaces()-1);
+    addBoundaryCell(nFaces()-2, nFaces()-1);
 
     for (const auto& face : m_faces) {
         addFaceNormal(*face);
     }
 
     assert(validate() && "Mesh failed consistency checks.");
-    assert(m_cells.size() == getNCells()); 
+    assert(m_cells.size() == nCells()); 
 }
 
 /**
@@ -67,7 +69,7 @@ void Mesh::addNode(const Double x) {
  * @param node Node object from which the face originates
  */
 void Mesh::addInteriorFace(const Node& node) {
-    auto facePtr = std::make_unique<Face>(m_faces.size(), node.getId());
+    auto facePtr = std::make_unique<Face>(m_faces.size(), node.id());
     Face* rawPtr = facePtr.get();
     m_interiorFaces.push_back(rawPtr);
     m_faces.push_back(std::move(facePtr));
@@ -75,7 +77,7 @@ void Mesh::addInteriorFace(const Node& node) {
 }
 
 void Mesh::addBoundaryFace(const Node& node) {
-    auto facePtr = std::make_unique<Face>(m_faces.size(), node.getId());
+    auto facePtr = std::make_unique<Face>(m_faces.size(), node.id());
     Face* rawPtr = facePtr.get();
     m_boundaryFaces.push_back(rawPtr);
     m_faces.push_back(std::move(facePtr));
@@ -90,14 +92,14 @@ void Mesh::addBoundaryFace(const Node& node) {
 }*/
 
 void Mesh::addFaceGeometry(const Node& node, const Face& face) {
-    m_faceCenter.push_back(node.getX());
+    m_faceCenter.push_back(node.x());
     m_faceArea.push_back(defaultArea);
 }
 
 void Mesh::addFaceNormal(const Face& face) {
     // Orientation of face normal : lowerId -> higherId
-    (face.getCellId()[0] < face.getCellId()[1]) ? m_faceNormal.push_back(defaultNormal)
-                                                : m_faceNormal.push_back(-defaultNormal); 
+    (face.cellId()[0] < face.cellId()[1]) ? m_faceNormal.push_back(defaultNormal)
+                                          : m_faceNormal.push_back(-defaultNormal); 
 }
 
 
@@ -152,8 +154,8 @@ bool Mesh::validate() const {
 
     for (size_t i = 0; i < m_faces.size(); ++i) {
         int count = 0;
-        if (m_faces[i]->getCellId()[0] != -1) ++count;
-        if (m_faces[i]->getCellId()[1] != -1) ++count;
+        if (m_faces[i]->cellId()[0] != -1) ++count;
+        if (m_faces[i]->cellId()[1] != -1) ++count;
 
         if (count == 0) {
             std::cerr << "Face " << i << " is orphaned (0 connected cells)\n";
@@ -168,11 +170,11 @@ bool Mesh::validate() const {
     // Check for connectivity
     for (size_t i = 0; i < m_cells.size(); ++i){
         const auto& cell = m_cells[i];
-        const auto& cellId = cell->getId();
+        const auto& cellId = cell->id();
         
-        for(const auto faceId : cell->getFaceIds()){
+        for(const auto faceId : cell->faceIds()){
             const auto& face = *m_faces[faceId];
-            const auto& nghbrCellId = face.getCellId();
+            const auto& nghbrCellId = face.cellId();
             if(nghbrCellId[0] != cellId && nghbrCellId[1] != cellId){
                 std::cerr << "Cell " << cellId << " has wrong connectivity with face "
                                                << faceId << "\n";

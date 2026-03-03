@@ -21,10 +21,10 @@ public:
  * 
  * @param system A reference to the CSR system to be solved. Must have valid matrix and RHS.
  */
-static ScalarField solveWithPETSc(const Mesh& mesh, const CsrSystem& system);
+    static ScalarField solveWithPETSc(const Mesh& mesh, const CsrSystem& system);
 
-static Mat setupCsrLhs(const CsrLHS* csrLhs);
-static Vec setupCsrRhs(const CsrRHS* csrLhs);
+    static Mat setupCsrLhs(const lhs* csrLhs);
+    static Vec setupCsrRhs(const rhs* csrLhs);
 
 
 };

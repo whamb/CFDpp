@@ -39,28 +39,28 @@ struct pair_hash {
 class TripletSystem
 {
 public:
-TripletSystem(const Mesh& mesh);
+    TripletSystem(const Mesh& mesh);
 
-void addToLHS(const CellID row, const CellID column, const Double value);
-void addToRHS(const CellID row, const Double value) {m_rhs[row] += value;}
-void setRHS  (const CellID row, const Double value) {m_rhs[row] = value;}
+    void addToLHS(const CellID row, const CellID column, const Double value);
+    void addToRHS(const CellID row, const Double value) {m_rhs[row] += value;}
+    void setRHS  (const CellID row, const Double value) {m_rhs[row] = value;}
 
-const CellID rhsSize(){return m_rhs.size();}
-const CellID lhsSize(){return m_value.size();}
+    const CellID rhsSize(){return m_rhs.size();}
+    const CellID lhsSize(){return m_value.size();}
 
-const std::span<const Double> getValues() const {return m_value;}
-const std::span<const CellID> getRows() const {return m_row;}
-const std::span<const CellID> getColumns() const {return m_column;}
-const std::span<const Double> getRHS() const {return m_rhs;}
+    const std::span<const Double> values()  const {return m_value;}
+    const std::span<const CellID> rows()    const {return m_row;}
+    const std::span<const CellID> columns() const {return m_column;}
+    const std::span<const Double> rhs()     const {return m_rhs;}
 
-void clear();
+    void clear();
 
 private:
-std::vector<Double> m_value;
-std::vector<CellID> m_row;
-std::vector<CellID> m_column;
-std::vector<Double> m_rhs;
-std::unordered_map<std::pair<CellID, CellID>, std::size_t, pair_hash> m_indexMap;
+    std::vector<Double> m_value;
+    std::vector<CellID> m_row;
+    std::vector<CellID> m_column;
+    std::vector<Double> m_rhs;
+    std::unordered_map<std::pair<CellID, CellID>, std::size_t, pair_hash> m_indexMap;
 };
 
 #endif // TRIPLETSYSTEM_HPP

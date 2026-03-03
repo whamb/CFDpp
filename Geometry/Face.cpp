@@ -1,9 +1,6 @@
-#include "Face.hpp"
+#include <stdexcept>
 
-void Face::setCell(int index, CellID cellId) {
-    assert(index < 2);
-    m_cellIds[index] = cellId;
-}
+#include <Face.hpp>
 
 /**
  * @brief Assigns a cell to the face.
@@ -15,11 +12,12 @@ void Face::setCell(int index, CellID cellId) {
  * @throws std::runtime_error if both adjacent cell slots are already filled
  */
 void Face::assignCell(CellID id) {
+    if(m_cellIds[0] > -1 && m_cellIds[1] > -1)
+        throw std::runtime_error("Face already has two cells assigned.");
     if (m_cellIds[0] == -1) {
         m_cellIds[0] = id;
-    } else if (m_cellIds[1] == -1) {
+    } 
+    else {
         m_cellIds[1] = id;
-    } else {
-        throw std::runtime_error("Face already has two cells assigned.");
     }
 }

@@ -5,7 +5,6 @@
 #include <math.h>
 #include <vector>
 
-#include <Geometry.hpp>
 #include <Face.hpp>
 #include <Types.hpp>
 
@@ -16,31 +15,28 @@
  * from the Geometry base class. It provides basic topology access and validity checks 
  * used in mesh traversal and flux computations.
  */
-class Cell : public Geometry
+class Cell
 {
 public:
 
-Cell(const CellID id, FaceID f1, FaceID f2) : 
-    Geometry(id), m_faceIds({f1, f2}) 
-    {assert(isValid() && "Invalid Cell \n");}
+    Cell() : m_id(-1), m_faceIds({-1,-1})
+    {}
+    Cell(const CellID id, FaceID f1, FaceID f2) : m_id(id), m_faceIds({f1, f2}) {
+        assert(isValid() && "Invalid Cell \n");}
 
-const std::array<FaceID, 2> getFaceIds() const { return m_faceIds; }
+    CellID id() const { return m_id; }
 
-bool isValid() const {return (m_faceIds[0] != -1 && m_faceIds[1] != -1);}
+    const std::array<FaceID, 2> faceIds() const { return m_faceIds; }
 
-bool isBoundary(){return (m_faceIds[0] == -1 || m_faceIds[0] == -1) ? true 
-                                                                    : false;}
-const CellID getNghbrCell(const Face& face) const;
+    bool isValid() const {return (m_faceIds[0] != -1 || m_faceIds[1] != -1);}
 
-friend std::ostream& operator<<(std::ostream& os, Cell& cell) {
-    os << "Cell id =  "   << cell.getId()
-       << ": Face0 Id = " << cell.m_faceIds[0]
-       << ", Face1 Id = " << cell.m_faceIds[1];
-    return os;
-}
+    bool isBoundary() const {return (m_faceIds[0] == -1 || m_faceIds[0] == -1) ? true 
+                                                                        : false;}
+    const CellID nghbrCell(const Face& face) const;
 
 private:
-std::array<FaceID, 2> m_faceIds {-1, -1};
+    CellID m_id;
+    std::array<FaceID, 2> m_faceIds {-1, -1};
 };
 
 #endif // CELL_h
