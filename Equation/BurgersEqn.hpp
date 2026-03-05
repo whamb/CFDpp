@@ -3,12 +3,11 @@
 
 #include <vector>
 
-#include "Equation.hpp"
-#include "Expressions.hpp"
-#include "ScalarField.hpp"
-#include "Mesh.hpp"
-#include "TripletSystem.hpp"
-#include "Types.hpp"
+#include <Expressions.hpp>
+#include <ScalarField.hpp>
+#include <Mesh.hpp>
+#include <TripletSystem.hpp>
+#include <Types.hpp>
 
 enum BcType {Dirichlet, Neumann};
 
@@ -22,32 +21,32 @@ enum BcType {Dirichlet, Neumann};
 class BurgersEqn
 {
 public:
-BurgersEqn(Mesh& mesh, Double dt, Double nu): 
-    m_u("u", mesh.getNCells()),
-    m_uf("mdot", mesh.getNFaces()),
-    m_dt(dt), 
-    m_nu(nu)
+    BurgersEqn(Mesh& mesh, Double dt, Double nu): 
+        m_u("u", mesh.nCells()),
+        m_uf("mdot", mesh.nFaces()),
+        m_dt(dt), 
+        m_nu(nu)
     {}
-// System initialisation
-void initialiseSolution(const Mesh& mesh);
+    // System initialisation
+    void initialiseSolution(const Mesh& mesh);
 
-// Build functions
-void buildBurgers       (const Mesh& mesh, TripletSystem& tripletSystem);
-void buildAdvectionTerm (const Mesh& mesh, TripletSystem& tripletSystem);
-void buildViscousTerm   (const Mesh& mesh, TripletSystem& tripletSystem);
-void buildTransientTerm (const Mesh& mesh, TripletSystem& tripletSystem);
-// For the moment, only periodic
-void updateBc      (const Mesh& mesh, TripletSystem& tripletSystem);
-void updateFaceFlux(const Mesh& mesh);
+    // Build functions
+    void buildBurgers       (const Mesh& mesh, TripletSystem& tripletSystem);
+    void buildAdvectionTerm (const Mesh& mesh, TripletSystem& tripletSystem);
+    void buildViscousTerm   (const Mesh& mesh, TripletSystem& tripletSystem);
+    void buildTransientTerm (const Mesh& mesh, TripletSystem& tripletSystem);
+    
+    // For the moment, only periodic
+    void updateBc      (const Mesh& mesh, TripletSystem& tripletSystem);
+    void updateFaceFlux(const Mesh& mesh);
 
-ScalarField& getU(){return m_u;}
+    ScalarField& u(){return m_u;}
 
 private:
-Double m_nFace;
-ScalarField m_u;
-ScalarField m_uf;
-Double m_dt;
-Double m_nu;
+    ScalarField m_u;
+    ScalarField m_uf;
+    Double m_dt;
+    Double m_nu;
 };
 
 #endif // BURGERSEQN_HPP

@@ -23,8 +23,8 @@ public:
  */
     static ScalarField solveWithPETSc(const Mesh& mesh, const CsrSystem& system);
 
-    static Mat setupCsrLhs(const lhs* csrLhs);
-    static Vec setupCsrRhs(const rhs* csrLhs);
+    static Mat setupCsrLhs(const Lhs* csrLhs);
+    static Vec setupCsrRhs(const Rhs* csrLhs);
 
 
 };

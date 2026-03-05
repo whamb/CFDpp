@@ -1,8 +1,9 @@
 #ifndef TRIDIAGONALSYSTEM_HPP
 #define TRIDIAGONALSYSTEM_HPP
 
+#include <span>
 #include <vector>
-#include <LinearSystem.hpp>
+
 #include <Types.hpp>
 
 /**
@@ -11,21 +12,21 @@
  * Stores references to lower, upper, and diagonal coefficient arrays via std::span.
  * Provides access to matrix entries within the tridiagonal band.
  */
-class TridiagonalLHS : public LHS {
+class TridiagonalLHS {
 public:
-TridiagonalLHS(std::span<Double> lower,
-               std::span<Double> upper,
-               std::span<Double> diagonal,
-               CellID size);
+    TridiagonalLHS(std::span<Double> lower,
+                   std::span<Double> upper,
+                   std::span<Double> diagonal,
+                   CellID size);
 
-Double& operator()(CellID i, CellID j);
-TridiagonalLHS operator+(const TridiagonalLHS& lhs) const;
+    Double& operator()(CellID i, CellID j);
+    TridiagonalLHS operator+(const TridiagonalLHS& lhs) const;
 
 private:
-std::span<Double> m_lower;
-std::span<Double> m_diagonal;
-std::span<Double> m_upper;
-CellID m_size;
+    std::span<Double> m_lower;
+    std::span<Double> m_diagonal;
+    std::span<Double> m_upper;
+    CellID m_size;
 };
 
 /**
@@ -33,16 +34,16 @@ CellID m_size;
  * 
  * Wraps a span of doubles to allow indexed access to the RHS entries.
  */
-class TridiagonalRHS : public RHS {
+class TridiagonalRHS {
 public:
-TridiagonalRHS(std::span<Double> rhs, CellID size){};
+    TridiagonalRHS(std::span<Double> rhs, CellID size){};
 
-Double& operator()(CellID i);
-TridiagonalRHS operator+(const TridiagonalRHS& rhs) const;
+    Double& operator()(CellID i);
+    TridiagonalRHS operator+(const TridiagonalRHS& rhs) const;
 
 private:
-std::span<Double> m_rhs;
-CellID m_size;
+    std::span<Double> m_rhs;
+    CellID m_size;
 };
 
 /**
@@ -52,33 +53,25 @@ CellID m_size;
  * Provides methods for initialization and solving via the Thomas algorithm.
  * Interfaces with polymorphic LinearSystem for general solver infrastructure.
  */
-class TridiagonalSystem : public LinearSystem {
+class TridiagonalSystem {
 public:
-TridiagonalSystem(CellID size)
-: m_size(size),
-  m_lower(size - 1, 0.0),
-  m_upper(size - 1, 0.0),
-  m_diagonal(size, 0.0),
-  m_rhs(size, 0.0),
-  LinearSystem(
-      std::make_unique<TridiagonalLHS>(
-          std::span<Double>(m_lower),
-          std::span<Double>(m_upper),
-          std::span<Double>(m_diagonal),
-          size),
-      std::make_unique<TridiagonalRHS>(
-          std::span<Double>(m_rhs),
-          size)){}
+    TridiagonalSystem(CellID size) : 
+        m_size(size),
+        m_lower(size - 1, 0.0),
+        m_upper(size - 1, 0.0),
+        m_diagonal(size, 0.0),
+        m_rhs(size, 0.0)
+    {}
 
-void initialiseTridiagonalSystem();  // Optional zeroing or custom init
-std::vector<Double> thomasSolve() const;
+    void initialiseTridiagonalSystem();  // Optional zeroing or custom init
+    std::vector<Double> thomasSolve() const;
 
 private:
-CellID m_size;
-std::vector<Double> m_lower;
-std::vector<Double> m_diagonal;
-std::vector<Double> m_upper;
-std::vector<Double> m_rhs;
+    CellID m_size;
+    std::vector<Double> m_lower;
+    std::vector<Double> m_diagonal;
+    std::vector<Double> m_upper;
+    std::vector<Double> m_rhs;
 };
 
 #endif // TRIDIAGONALSYSTEM_HPP

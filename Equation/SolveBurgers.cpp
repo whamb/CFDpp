@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <PetscCsrSolve.hpp>
 #include <SolveBurgers.hpp>
 
@@ -8,7 +10,7 @@ void SolveBurgers::cyclingStrategy(const Mesh& mesh, BurgersEqn& burgersEqn){
         std::cout << "Time = " << m_time << "\n";
         m_tripletSystem.clear();
         burgersEqn.buildBurgers(mesh, m_tripletSystem);
-        burgersEqn.getU() = PetscCsrSolve::solveWithPETSc(mesh, CsrSystem(m_tripletSystem));
+        burgersEqn.u() = PetscCsrSolve::solveWithPETSc(mesh, CsrSystem(m_tripletSystem));
     }
 }
 

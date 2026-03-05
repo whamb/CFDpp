@@ -5,7 +5,7 @@
 #include <PetscCsrSolve.hpp>
 #include <ScalarField.hpp>
 
-Mat PetscCsrSolve::setupCsrLhs(const CsrLHS* csrLhs){
+Mat PetscCsrSolve::setupCsrLhs(const Lhs* csrLhs){
     auto& rowPtr = csrLhs->m_compressedRow; // size n+1
     auto& colIdx = csrLhs->m_columnIdx;     // size nnz
     auto& values = csrLhs->m_value;        // size nnz
@@ -21,9 +21,9 @@ Mat PetscCsrSolve::setupCsrLhs(const CsrLHS* csrLhs){
     return A;
 }
 
-Vec PetscCsrSolve::setupCsrRhs(const CsrRHS* csrRhs){
-    auto& rhsVec = csrRhs->m_csrRhs;        // size n
-    PetscInt n =   csrRhs->m_csrRhs.size();
+Vec PetscCsrSolve::setupCsrRhs(const Rhs* csrRhs){
+    auto& rhsVec = csrRhs->m_rhs;        // size n
+    PetscInt n =   csrRhs->m_rhs.size();
     Vec b;
     VecCreateSeqWithArray(PETSC_COMM_SELF, 1, n, rhsVec.data(), &b);
     return b;
@@ -32,13 +32,13 @@ Vec PetscCsrSolve::setupCsrRhs(const CsrRHS* csrRhs){
 ScalarField PetscCsrSolve::solveWithPETSc(const Mesh& mesh, const CsrSystem& system) {
     //PetscInitialize(NULL, NULL, NULL, NULL);
 
-    PetscInt n = system.getNRows();          
+    PetscInt n = system.nRows();          
 
     // Wrap CSR into PETSc matrix
-    Mat A = setupCsrLhs(system.getLhs());
+    Mat A = setupCsrLhs(system.lhs());
 
     // Create vectors
-    Vec b = setupCsrRhs(system.getRhs());
+    Vec b = setupCsrRhs(system.rhs());
     Vec x;
     VecCreateSeq(PETSC_COMM_SELF, n, &x);
 
@@ -51,7 +51,7 @@ ScalarField PetscCsrSolve::solveWithPETSc(const Mesh& mesh, const CsrSystem& sys
     KSPSolve(ksp, b, x);
 
     // Extract solution into std::vector
-    ScalarField solution("u", mesh.getNCells());
+    ScalarField solution("u", mesh.nCells());
     const PetscScalar *xArray;
     VecGetArrayRead(x, &xArray);
     for (PetscInt i = 0; i < n; ++i) {

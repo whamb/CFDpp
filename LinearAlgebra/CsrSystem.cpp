@@ -6,9 +6,9 @@ void CsrSystem::convertTripletToCsr(TripletSystem& tripletSystem){
     // Zip into a vector of tuples
     std::vector<std::tuple<CellID, CellID, Double >> combined;
     for (size_t i = 0; i < tripletSystem.lhsSize(); ++i) {
-        combined.emplace_back(tripletSystem.getRows()[i], 
-                              tripletSystem.getColumns()[i],
-                              tripletSystem.getValues()[i]);
+        combined.emplace_back(tripletSystem.rows()[i], 
+                              tripletSystem.columns()[i],
+                              tripletSystem.values()[i]);
     }
 
     // Sort by the first element (rows)
@@ -50,7 +50,7 @@ void CsrSystem::convertTripletToCsr(TripletSystem& tripletSystem){
     }
 
     // Build RHS of the CSR system
-    std::copy(tripletSystem.getRHS().begin(), 
-              tripletSystem.getRHS().end(),
+    std::copy(tripletSystem.rhs().begin(), 
+              tripletSystem.rhs().end(),
               std::back_inserter(m_csrRhs));
 }

@@ -3,7 +3,7 @@
 #include <Types.hpp>
 
 TripletSystem::TripletSystem(const Mesh& mesh){
-    m_rhs.resize(mesh.getNCells());
+    m_rhs.resize(mesh.nCells());
 }
 
 void TripletSystem::addToLHS(const CellID row, const CellID column, const Double value) {

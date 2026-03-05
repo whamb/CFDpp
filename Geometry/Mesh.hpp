@@ -69,8 +69,8 @@ public:
     FaceID nBoundaryCells() const {return m_boundaryCells.size();}
     FaceID nCells()         const {return m_cells.size();}
 
-    const std::vector<Double>& getCellCenter() const {return m_cellCenter;}
-    const std::vector<Double>& getCellVolume() const {return m_cellVolume;}
+    const std::vector<Double>& cellCenter() const {return m_cellCenter;}
+    const std::vector<Double>& cellVolume() const {return m_cellVolume;}
     
     void addCellGeometry(const FaceID f1, const FaceID f2);
     
