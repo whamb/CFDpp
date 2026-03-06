@@ -1,7 +1,6 @@
 #include <chrono>
 #include <iostream>
 
-
 #include <BurgersEqn.hpp>
 #include <SolveBurgers.hpp>
 #include <TripletSystem.hpp>
@@ -13,22 +12,28 @@
 
 int main(){
     Double tFinal = 100.0;
-    Double dt = 0.05;
+    Double dt = 0.01;
     Double nu = 0.1;
-    Mesh mesh(0.0, 1, 0.01); 
+
+    auto begin = std::chrono::steady_clock::now();
+    Mesh mesh(0.0, 1, 0.001); 
+    auto meshing = std::chrono::steady_clock::now();
 
     BurgersEqn burgersEqn(mesh, dt, nu);
     SolveBurgers solveBurgers(mesh, tFinal, dt);
     PetscInitialize(NULL, NULL, NULL, NULL);
 
-    auto begin = std::chrono::steady_clock::now();
     solveBurgers.cyclingStrategy(mesh, burgersEqn);
-    auto end = std::chrono::steady_clock::now();
+    auto solving = std::chrono::steady_clock::now();
 
     PetscFinalize();
 
-     std::cout << "Elapsed milliseconds: "
-        << duration_cast<std::chrono::milliseconds>(end - begin).count()
+    std::cout << "Meshing Elapsed milliseconds: "
+        << duration_cast<std::chrono::milliseconds>(meshing - begin).count()
+        << "ms\n";
+
+    std::cout << "Solving Elapsed milliseconds: "
+        << duration_cast<std::chrono::milliseconds>(solving - meshing).count()
         << "ms\n";
     
     return 0;
