@@ -5,6 +5,10 @@
 #include <Mesh.hpp>
 #include <TripletSystem.hpp>
 #include <Types.hpp>
+#include <EigenSolve.hpp>
+#ifdef USE_PETSC
+#include <PetscCsrSolve.hpp>
+#endif
 
 class SolveBurgers
 {

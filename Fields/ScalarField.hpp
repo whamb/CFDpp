@@ -1,6 +1,7 @@
 #ifndef SCALARFIELD_HPP
 #define SCALARFIELD_HPP
 
+#include <string>
 #include <vector>
 
 #include <Types.hpp>
@@ -15,10 +16,14 @@ class ScalarField
 {
 public:
 
-    ScalarField(const std::string name, const std::size_t size) : m_name(std::move(name)), m_field(size)
+    ScalarField(const std::string name, const std::size_t size) : m_name(std::move(name)), 
+                                                                  m_field(size)
+    {};
+    ScalarField(const std::string name, const std::vector<Double>& data) : m_name(std::move(name)), 
+                                                                           m_field(data)
     {};
     
-    const std::vector<Double>&    data() const { return m_field; }
+    std::vector<Double>           data() const { return m_field; }
     std::size_t                   size() const { return m_field.size(); }
     std::string_view              name() const { return m_name; }
     Double&                       operator[](size_t i) { return m_field[i]; }

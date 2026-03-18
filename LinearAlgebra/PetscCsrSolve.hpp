@@ -1,6 +1,8 @@
 #ifndef PETSCCSRSOLVE_HPP
 #define PETSCCSRSOLVE_HPP
 
+#ifdef USE_PETSC
+
 #include <petscksp.h>
 
 #include <CsrSystem.hpp>
@@ -29,4 +31,5 @@ public:
 
 };
 
+#endif
 #endif // PETSCCSRSOLVE_HPP

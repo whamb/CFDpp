@@ -45,13 +45,13 @@ public:
     void addToRHS(const CellID row, const Double value) {m_rhs[row] += value;}
     void setRHS  (const CellID row, const Double value) {m_rhs[row] = value;}
 
-    const CellID rhsSize(){return m_rhs.size();}
-    const CellID lhsSize(){return m_value.size();}
+    CellID rhsSize() const {return m_rhs.size();}
+    CellID lhsSize() const {return m_value.size();}
 
-    const std::span<const Double> values()  const {return m_value;}
-    const std::span<const CellID> rows()    const {return m_row;}
-    const std::span<const CellID> columns() const {return m_column;}
-    const std::span<const Double> rhs()     const {return m_rhs;}
+    std::span<const Double> values()  const {return m_value;}
+    std::span<const CellID> rows()    const {return m_row;}
+    std::span<const CellID> columns() const {return m_column;}
+    std::span<const Double> rhs()     const {return m_rhs;}
 
     void clear();
 

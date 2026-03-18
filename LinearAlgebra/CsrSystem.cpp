@@ -1,7 +1,10 @@
+#include <algorithm>
+#include <iterator>
+
 #include <CsrSystem.hpp>
 
-void CsrSystem::convertTripletToCsr(TripletSystem& tripletSystem){
-    assert(m_value.size() == m_columnIdx.size() && "CSR value/column index size mismatch.");
+void CsrSystem::convertTripletToCsr(const TripletSystem& tripletSystem){
+    assert(m_values.size() == m_columnIdx.size() && "CSR value/column index size mismatch.");
 
     // Zip into a vector of tuples
     std::vector<std::tuple<CellID, CellID, Double >> combined;
@@ -25,7 +28,7 @@ void CsrSystem::convertTripletToCsr(TripletSystem& tripletSystem){
     m_compressedRow.push_back(0);
 
     for (const auto& tup : combined) {
-        m_value.push_back    (std::get<2>(tup));
+        m_values.push_back    (std::get<2>(tup));
         m_columnIdx.push_back(std::get<1>(tup));
 
         while(currRow < std::get<0>(tup)){

@@ -36,3 +36,6 @@ build
 *.plist
 main
 *.yml
+
+# Folders
+lib/

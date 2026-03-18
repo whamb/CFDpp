@@ -61,11 +61,11 @@ struct Rhs {
 class CsrSystem
 {
 public:
-    CsrSystem(TripletSystem& tripletSystem)
+    CsrSystem(const TripletSystem& tripletSystem)
     {   
         convertTripletToCsr(tripletSystem);
         m_lhs = std::make_unique<Lhs>(
-            std::span<const Double> (m_value),
+            std::span<const Double> (m_values),
             std::span<const CellID> (m_columnIdx),
             std::span<const CellID> (m_compressedRow)
         );
@@ -79,17 +79,22 @@ public:
     const Rhs* rhs() const { return dynamic_cast<const Rhs*>(m_rhs.get()); }
 
     CellID rhsSize() const { return m_csrRhs.size(); }
-    CellID lhsSize() const { return m_value.size(); }
+    CellID lhsSize() const { return m_values.size(); }
     CellID nRows()   const { return m_compressedRow.size() - 1; }
+
+    const std::vector<Double>& values()        const { return m_values; }
+    const std::vector<CellID>& columnIdx()     const { return m_columnIdx; }
+    const std::vector<CellID>& compressedRow() const { return m_compressedRow; }
+    const std::vector<Double>& csrRhs()        const { return m_csrRhs; }
 
 private:
     std::unique_ptr<Lhs> m_lhs;
     std::unique_ptr<Rhs> m_rhs;
-    std::vector<Double>  m_value;
+    std::vector<Double>  m_values;
     std::vector<CellID>  m_columnIdx;
     std::vector<CellID>  m_compressedRow;
     std::vector<Double>  m_csrRhs;
-    void convertTripletToCsr(TripletSystem& tripletSystem);
+    void convertTripletToCsr(const TripletSystem& tripletSystem);
 };
 
 #endif //CSRSYSTEM

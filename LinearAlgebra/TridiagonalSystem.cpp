@@ -1,3 +1,6 @@
+#include <stdexcept>
+#include <string>
+
 #include <TridiagonalSystem.hpp>
 
 /**
