@@ -25,19 +25,22 @@ Eigen::SparseMatrix<Double> EigenSolve::setupLhs(const TripletSystem& tripletSys
     const std::span<const Double> values  = tripletSystem.values();
 
     std::vector<Eigen::Triplet<double>> triplets;
-    triplets.reserve(rows.size());
+    CellID lhsSize = tripletSystem.lhsSize();
+    CellID rhsSize = tripletSystem.rhsSize();
+    triplets.reserve(lhsSize);
 
-    for (size_t i = 0; i < rows.size(); ++i){
+    for (size_t i = 0; i < lhsSize; ++i){
         triplets.emplace_back(rows[i], cols[i], values[i]);
     }
 
     Eigen::SparseMatrix<double> A;
+    A.resize(rhsSize, rhsSize);
     A.setFromTriplets(triplets.begin(), triplets.end());
     return A;
 };
 
 Eigen::Map<const Eigen::VectorXd> EigenSolve::setupRhs(const TripletSystem& tripletSystem){
     return Eigen::Map<const Eigen::VectorXd>(tripletSystem.rhs().data(),
-                                             tripletSystem.rhs().size());
+                                             tripletSystem.rhsSize());
 };
 

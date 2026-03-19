@@ -8,8 +8,8 @@
 
 void SolveBurgers::cyclingStrategy(const Mesh& mesh, BurgersEqn& burgersEqn){
     burgersEqn.initialiseSolution(mesh);
-    advanceTime();
     while(m_time < m_tFinal){
+        advanceTime();
         m_tripletSystem.clear();
         burgersEqn.buildBurgers(mesh, m_tripletSystem);
         #ifdef USE_PETSC

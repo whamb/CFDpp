@@ -183,8 +183,10 @@ void BurgersEqn::updateFaceFlux(const Mesh& mesh){
         const CellID c0 = face->cellId()[0];
         const CellID c1 = face->cellId()[1];
         const Double fArea = area[faceId];
-        const Double uf0 = m_u[c0] * fArea;
-        const Double uf1 = m_u[c1] * fArea;
-        m_uf[faceId] = 0.5 * (uf0 + uf1);
+        if(c0 >= 0)
+            m_uf[faceId] = m_u[c0] * fArea;
+        if(c1 >= 0)
+            m_uf[faceId] = m_u[c1] * fArea;
+        ;
     }
 }

@@ -19,7 +19,7 @@ int main(){
     Double nu = 0.1;
 
     auto begin = std::chrono::steady_clock::now();
-    Mesh mesh(0.0, 1, 0.001); 
+    Mesh mesh(0.0, 1, 0.25); 
     auto meshing = std::chrono::steady_clock::now();
 
     BurgersEqn burgersEqn(mesh, dt, nu);
