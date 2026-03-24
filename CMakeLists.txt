@@ -74,9 +74,22 @@ target_include_directories(CFDppLib PUBLIC
 # -------------------------------
 # Link Eigen (header-only)
 # -------------------------------
+# Windows local copy
 target_include_directories(CFDppLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/eigen
 )
+
+# macOS Homebrew (works on both Intel and Apple Silicon)
+if(APPLE)
+    find_path(EIGEN3_PATH Eigen/Core
+              PATHS /opt/homebrew/opt/eigen/include/eigen3
+                    /usr/local/opt/eigen/include/eigen3
+              NO_DEFAULT_PATH)
+    if(EIGEN3_PATH)
+        target_include_directories(CFDppLib PUBLIC ${EIGEN3_PATH})
+    endif()
+endif()
+
 
 # -------------------------------
 # Link PETSc
