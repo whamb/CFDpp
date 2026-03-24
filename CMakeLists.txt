@@ -110,6 +110,11 @@ target_link_libraries(CFDpp PRIVATE CFDppLib)
 # -------------------------------
 # Parallel execution
 # -------------------------------
+target_compile_features(CFDppLib PRIVATE cxx_std_20) 
+# Parallel execution — both targets need OpenMP flags
+target_compile_options(CFDppLib PRIVATE 
+    "$<$<CXX_COMPILER_ID:MSVC>:/openmp>"
+)
 target_compile_options(CFDpp PRIVATE /openmp)
 
 # -------------------------------
