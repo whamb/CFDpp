@@ -1,5 +1,6 @@
 #include <chrono>
 #include <iostream>
+#include <omp.h>  // For OpenMP
 
 #include <BurgersEqn.hpp>
 #include <EigenSolve.hpp>
@@ -14,19 +15,22 @@
 // A mock class to expose protected members for test validation (optional)
 
 int main(){
-    Double tFinal = 100.0;
-    Double dt = 0.01;
-    Double nu = 0.1;
+    const Double tFinal = 1;
+    const Double dt = 0.01;
+    const Double nu = 0.1;
+    const int outputFrequency = 25;
 
     auto begin = std::chrono::steady_clock::now();
-    Mesh mesh(0.0, 1, 0.25); 
+    Mesh mesh(0.0, 1.0, 0.001); 
     auto meshing = std::chrono::steady_clock::now();
 
     BurgersEqn burgersEqn(mesh, dt, nu);
-    SolveBurgers solveBurgers(mesh, tFinal, dt);
+    SolveBurgers solveBurgers(mesh, tFinal, dt, outputFrequency);
     #ifdef USE_PETSC
     PetscInitialize(NULL, NULL, NULL, NULL);
     #endif
+
+    Eigen::setNbThreads(2);
 
     solveBurgers.cyclingStrategy(mesh, burgersEqn);
     auto solving = std::chrono::steady_clock::now();

@@ -37,6 +37,8 @@ if(USE_PETSC)
   endif()
 endif()
 
+find_package(OpenMP REQUIRED)
+
 # -------------------------------
 # CFDppLib: Core CFD library
 # -------------------------------
@@ -56,10 +58,7 @@ if(USE_PETSC)
   target_sources(CFDppLib PRIVATE 
                  LinearAlgebra/PetscCsrSolve.cpp
                 )
-endif()
-
-if(USE_PETSC)
-    target_compile_definitions(CFDppLib PUBLIC USE_PETSC)
+  target_compile_definitions(CFDppLib PUBLIC USE_PETSC)
 endif()
 
 # Public headers for consumers
@@ -79,7 +78,6 @@ target_include_directories(CFDppLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/eigen
 )
 
-
 # -------------------------------
 # Link PETSc
 # -------------------------------
@@ -87,11 +85,19 @@ if(USE_PETSC)
   target_link_libraries(CFDppLib PUBLIC PkgConfig::PETSc)
 endif()
 
+target_link_libraries(CFDppLib PRIVATE OpenMP::OpenMP_CXX)
+
 # -------------------------------
 # Main solver executable
 # -------------------------------
 add_executable(CFDpp src/main.cpp)
 target_link_libraries(CFDpp PRIVATE CFDppLib)
+
+
+# -------------------------------
+# Parallel execution
+# -------------------------------
+target_compile_options(CFDpp PRIVATE /openmp)
 
 # -------------------------------
 # Unit tests

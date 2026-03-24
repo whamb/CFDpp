@@ -11,7 +11,9 @@ ScalarField EigenSolve::solveWithEigen(const Mesh& mesh, const TripletSystem& tr
     const Eigen::SparseMatrix<Double> A = EigenSolve::setupLhs(tripletSystem);
     const Eigen::VectorXd b             = EigenSolve::setupRhs(tripletSystem);
 
-    Eigen::BiCGSTAB<Eigen::SparseMatrix<Double>> solver;
+    Eigen::DiagonalPreconditioner<Double> prec;
+    Eigen::BiCGSTAB<Eigen::SparseMatrix<Double>, decltype(prec)> solver;
+    solver.preconditioner() = prec;
     solver.compute(A);
     Eigen::VectorXd x = solver.solve(b);
 
