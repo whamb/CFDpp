@@ -15,7 +15,7 @@ void BurgersEqn::initialiseSolution(const Mesh& mesh){
     for(const auto& c : cell){
         const CellID cId = c->id();
         const Double x = cellCenter[cId];
-        m_u[cId] = std::sin(std::numbers::pi * x); 
+        m_u[cId] = exp(-x * x); 
     }
     
     // Initialise interior face flux 

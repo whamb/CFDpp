@@ -15,13 +15,13 @@
 // A mock class to expose protected members for test validation (optional)
 
 int main(){
-    const Double tFinal = 1.0;
-    const Double dt = 0.001;
-    const Double nu = 0.1;
-    const int outputFrequency = 250;
+    const Double tFinal = 5.0;
+    const Double dt = 0.005;
+    const Double nu = 0.01;
+    const int outputFrequency = 20;
 
     auto begin = std::chrono::steady_clock::now();
-    Mesh mesh(0.0, 1.0, 1.0e-5); 
+    Mesh mesh(-6.0, 6.0, 6.0e-3); 
     auto meshing = std::chrono::steady_clock::now();
 
     BurgersEqn burgersEqn(mesh, dt, nu);
