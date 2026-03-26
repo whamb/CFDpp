@@ -37,8 +37,6 @@ if(USE_PETSC)
   endif()
 endif()
 
-find_package(OpenMP REQUIRED)
-
 # -------------------------------
 # CFDppLib: Core CFD library
 # -------------------------------
@@ -98,8 +96,6 @@ if(USE_PETSC)
   target_link_libraries(CFDppLib PUBLIC PkgConfig::PETSc)
 endif()
 
-target_link_libraries(CFDppLib PRIVATE OpenMP::OpenMP_CXX)
-
 # -------------------------------
 # Main solver executable
 # -------------------------------
@@ -108,14 +104,33 @@ target_link_libraries(CFDpp PRIVATE CFDppLib)
 
 
 # -------------------------------
-# Parallel execution
+# OpenMP (cross-platform)
 # -------------------------------
-target_compile_features(CFDppLib PRIVATE cxx_std_20) 
-# Parallel execution — both targets need OpenMP flags
-target_compile_options(CFDppLib PRIVATE 
-    "$<$<CXX_COMPILER_ID:MSVC>:/openmp>"
-)
-target_compile_options(CFDpp PRIVATE /openmp)
+if(APPLE)
+    set(OMP_ROOT /opt/homebrew/opt/libomp)
+
+    target_compile_options(CFDppLib PUBLIC
+        -Xpreprocessor -fopenmp
+        -I${OMP_ROOT}/include
+    )
+    target_link_libraries(CFDppLib PUBLIC
+        ${OMP_ROOT}/lib/libomp.dylib
+    )
+
+    target_compile_options(CFDpp PUBLIC
+        -Xpreprocessor -fopenmp
+        -I${OMP_ROOT}/include
+    )
+    target_link_libraries(CFDpp PUBLIC
+        ${OMP_ROOT}/lib/libomp.dylib
+    )
+
+else()
+    # Windows (MSVC)
+    target_link_libraries(CFDppLib PRIVATE OpenMP::OpenMP_CXX)
+    target_compile_options(CFDppLib PUBLIC /openmp)
+    target_compile_options(CFDpp PUBLIC /openmp)
+endif()
 
 # -------------------------------
 # Unit tests

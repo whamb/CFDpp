@@ -22,6 +22,16 @@
             }
         },
         {
+            "name": "OSX Debug",
+            "description": "Debug settings for my CFDpp project on OSX",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "YES"
+            }
+        },
+        {
             "name": "Windows",
             "description": "Default settings for my CFDpp project on Windows",
             "generator": "Visual Studio 17 2022",
