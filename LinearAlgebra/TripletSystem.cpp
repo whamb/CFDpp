@@ -9,16 +9,15 @@ TripletSystem::TripletSystem(const Mesh& mesh){
 void TripletSystem::addToLHS(const CellID row, const CellID column, const Double value) {
     //Deal with the case the i,j index already created
     auto key = std::make_pair(row,column);
-    auto found = m_indexMap.find(key);
+    auto [it, inserted] = m_indexMap.try_emplace(key, m_value.size());
 
-    if(found == m_indexMap.end()){
+    if (inserted){
         m_value.push_back(value);
         m_row.push_back(row);
         m_column.push_back(column);
-        m_indexMap[key] = m_value.size() - 1;
-    }
-    else{
-        m_value[found -> second] += value;
+    } else 
+    {
+        m_value[it->second] += value;
     }
 }
 
