@@ -3,78 +3,132 @@
 
 #include <BurgersEqn.hpp>
 
-void BurgersEqn::initialiseSolution(const Mesh& mesh){
-    const auto& cell               = mesh.cells();
-    const auto& cellCenter         = mesh.cellCenter();
-    const auto& interiorFace       = mesh.interiorFaces();
-    const auto& boundaryFace       = mesh.boundaryFaces();
-    const auto& faceArea           = mesh.faceArea();
-    const auto& faceCenter         = mesh.faceCenter();
+// Initialise solution field and face fluxes
+void BurgersEqn::initialiseSolution(const Mesh& mesh, TripletSystem& tripletSystem){
+    const auto& cells         = mesh.cells();
+    const auto& faces         = mesh.faces();
+    const auto& cellCenter    = mesh.cellCenter();
+    const auto& interiorFaces = mesh.interiorFaces();
+    const auto& boundaryFaces = mesh.boundaryFaces();
+    const auto& faceArea      = mesh.faceArea();
 
-    // Initialise solution field
-    for(const auto& c : cell){
-        const CellID cId = c->id();
-        const Double x = cellCenter[cId];
-        m_u[cId] = exp(-x * x); 
+    for(const auto& cell : cells){
+        const auto& cellId = cell->id();
+        const auto& faceIds = cell->faceIds();
+        const Double x = cellCenter[cellId];
+
+        // Build indexMap
+        for(const auto& fId : faceIds){
+            const auto& face = *(faces[fId]);
+            const auto& neighbourId = cell->nghbrCell(face);
+            
+            if(neighbourId == -1){
+                continue; // skip boundary faces
+            }
+            
+        // Add contributions to sparse matrix
+        tripletSystem.buildLHSMap(cellId, cellId, 1.0);
+        tripletSystem.buildLHSMap(cellId, neighbourId, 1.0);
+
+        }
+
+        // Initialise solution in each cell
+        // Example initial condition (currently constant since sin(pi)=0)
+        // m_u[cId] = exp(-x * x); 
+        m_u[cellId] = std::sin(std::numbers::pi * x); 
     }
     
-    // Initialise interior face flux 
-    for(const auto& f : interiorFace){
+    // Compute flux on interior faces (average of neighbouring cells)
+    for(const auto& f : interiorFaces){
         const FaceID fId = f->id();
         const Double area = faceArea[fId];
-        auto [c0, c1] = f->cellId();
-        //TODO: geometric factor for irregular cells
+
+        auto [c0, c1] = f->cellId(); // adjacent cells
+
         Double u0 = m_u[c0];
         Double u1 = m_u[c1];
+
+        // Central interpolation of flux
         m_uf[fId] = 0.5 * (u0 + u1) * area;
     }
 
-    // Initialise boundary face flux
-    for(const auto& bF : boundaryFace){
+    // Build indexMap for boundaries
+    const auto& bndCells     = mesh.boundaryCells();
+    const auto& cell0        = bndCells[0];
+    const auto& cell1        = bndCells[1];
+    const auto& cell0Id      = cell0->id();
+    const auto& cell1Id      = cell1->id();
+
+    //Cell 0
+    tripletSystem.buildLHSMap(cell0Id, cell0Id, 1.0);
+    tripletSystem.buildLHSMap(cell0Id, cell1Id, 1.0);
+    //Cell 1
+    tripletSystem.buildLHSMap(cell1Id, cell1Id, 1.0);
+    tripletSystem.buildLHSMap(cell1Id, cell0Id, 1.0);
+
+    // Compute flux on boundary faces (single adjacent cell)
+    for(const auto& bF : boundaryFaces){
         const FaceID bFId = bF->id();
         const Double area = faceArea[bFId];
-        auto c = bF->cellId()[0];
+
+        auto c = bF->cellId()[0]; // boundary has one valid cell
        
         Double u = m_u[c];
+
+        // Boundary flux (Dirichlet-like)
         m_uf[bFId] = u * area;
     }
+
+
 }
 
+// Build full Burgers system (LHS + RHS)
 void BurgersEqn::buildBurgers(const Mesh& mesh, TripletSystem& tripletSystem){
-    updateFaceFlux    (mesh);
-    buildAdvectionTerm(mesh, tripletSystem);
-    buildViscousTerm  (mesh, tripletSystem);
-    buildTransientTerm(mesh, tripletSystem);
-    updateBc          (mesh,tripletSystem);
+    updateFaceFlux    (mesh);                 // update nonlinear flux u*u
+    buildAdvectionTerm(mesh, tripletSystem);  // convective term
+    buildViscousTerm  (mesh, tripletSystem);  // diffusion term
+    buildTransientTerm(mesh, tripletSystem);  // time term
+    updateBc          (mesh, tripletSystem);  // boundary conditions
 }
 
+// Build advection term using upwind scheme
 void BurgersEqn::buildAdvectionTerm(const Mesh& mesh, TripletSystem& tripletSystem){
-    const auto& cells         = mesh.cells();
-    const auto& faces         = mesh.faces();
-    const auto& normals       = mesh.faceNormal();
+    const auto& cells   = mesh.cells();
+    const auto& faces   = mesh.faces();
+    const auto& normals = mesh.faceNormal();
     
     for(const auto& cell : cells){
         const auto& cellId = cell->id();
         const auto& faceIds = cell->faceIds();
+
+        // Loop over faces of current cell
         for(const auto& fId : faceIds){
-            const auto& face = *(faces[fId]); //Look up for neighbour using global indexing
+            const auto& face = *(faces[fId]);
             const auto& neighbourId = cell->nghbrCell(face);
+
+            // Compute outward normal direction
             const auto& n = (cellId > neighbourId) ? normals[fId] 
                                                    : -normals[fId];
+
             if(neighbourId == -1){
-                continue;                     //Check empty cell for boundary faces
+                continue; // skip boundary faces
             }
             
+            // Convective flux through face
             const Double flux = m_uf[fId] * n;
+
+            // Upwind discretisation
             Double upwindCoeff   = 0.5 * posMax(flux);
             Double downwindCoeff = -0.5 * posMax(flux);
             
+            // Add contributions to sparse matrix
             tripletSystem.addToLHS(cellId, cellId, upwindCoeff);
             tripletSystem.addToLHS(cellId, neighbourId, downwindCoeff);
         }
     }
 }
 
+// Build viscous (diffusion) term
 void BurgersEqn::buildViscousTerm(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells  = mesh.cells();
     const auto& faces  = mesh.faces();
@@ -82,37 +136,50 @@ void BurgersEqn::buildViscousTerm(const Mesh& mesh, TripletSystem& tripletSystem
     const auto& area   = mesh.faceArea();
 
     for(const auto& cell : cells){
-        const auto& cellId = cell->id();
+        const auto& cellId  = cell->id();
         const auto& faceIds = cell->faceIds();
+
         for(const auto& fId : faceIds){
-            const auto& face = *(faces[fId]); //Look up for neighbour using global indexing
+            const auto& face = *(faces[fId]);
             const auto& neighbourId = cell->nghbrCell(face);
+
             if(neighbourId == -1){
-                continue;                     //Check empty cell for boundary faces
+                continue; // skip boundary faces
             }
             
+            // Distance between cell centers
             Double dx = std::abs(center[cellId] - center[neighbourId]);
+
+            // Diffusion coefficient (nu * area / dx)
             Double diffCoeff = m_nu * area[fId] / dx;
             
+            // Standard finite volume Laplacian stencil
             tripletSystem.addToLHS(cellId, cellId, diffCoeff);
             tripletSystem.addToLHS(cellId, neighbourId, -diffCoeff);
         }
     }
 }
 
+// Build transient (time) term
 void BurgersEqn::buildTransientTerm(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& cells = mesh.cells();
     const auto& vol   = mesh.cellVolume();
 
     for(const auto& cell : cells){
         const CellID cellId = cell->id();
+
+        // Time discretisation coefficient (implicit Euler)
         const Double transientCoeff = vol[cellId] / m_dt; 
 
+        // Add diagonal contribution
         tripletSystem.addToLHS(cellId, cellId, transientCoeff);
+
+        // Add RHS contribution (previous timestep solution)
         tripletSystem.addToRHS(cellId, transientCoeff * m_u[cellId]);  
     }
 }
 
+// Apply boundary conditions (for the moment only periodic)
 void BurgersEqn::updateBc(const Mesh& mesh, TripletSystem& tripletSystem){
     const auto& bndCells     = mesh.boundaryCells();
     const auto& cell0        = bndCells[0];

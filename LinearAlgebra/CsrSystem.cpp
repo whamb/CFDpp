@@ -34,7 +34,7 @@ void CsrSystem::convertTripletToCsr(const TripletSystem& tripletSystem){
         while(currRow < std::get<0>(tup)){
             if(cRow != 0){
                 m_compressedRow.push_back(
-                            m_compressedRow[m_compressedRow.size() - 1] + cRow);
+                                m_compressedRow[m_compressedRow.size() - 1] + cRow);
                 cRow = 0;
                 ++currRow;
                 continue;

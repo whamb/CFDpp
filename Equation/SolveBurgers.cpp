@@ -7,7 +7,7 @@
 #include <SolveBurgers.hpp>
 
 void SolveBurgers::cyclingStrategy(const Mesh& mesh, BurgersEqn& burgersEqn){
-    burgersEqn.initialiseSolution(mesh);
+    burgersEqn.initialiseSolution(mesh, m_tripletSystem);
     // Dump initial condition
     dumpSolution(mesh, burgersEqn.u());
     while(m_time < m_tFinal){

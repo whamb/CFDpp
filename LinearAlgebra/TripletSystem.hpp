@@ -8,15 +8,6 @@
 #include <Mesh.hpp>
 #include <Types.hpp>
 
-struct pair_hash {
-    template <typename T1, typename T2>
-    std::size_t operator()(const std::pair<T1, T2>& p) const noexcept {
-        std::size_t h1 = std::hash<T1>{}(p.first);
-        std::size_t h2 = std::hash<T2>{}(p.second);
-        return h1 ^ (h2 << 1);  // hash combine
-    }
-};
-
 /**
  * @brief Represents a sparse linear system in triplet (COO) format.
  * 
@@ -41,9 +32,10 @@ class TripletSystem
 public:
     TripletSystem(const Mesh& mesh);
 
-    void addToLHS(const CellID row, const CellID column, const Double value);
-    void addToRHS(const CellID row, const Double value) {m_rhs[row] += value;}
-    void setRHS  (const CellID row, const Double value) {m_rhs[row] = value;}
+    void buildLHSMap(const CellID row, const CellID column, const Double value);
+    void addToLHS   (const CellID row, const CellID column, const Double value);
+    void addToRHS   (const CellID row, const Double value) {m_rhs[row] += value;}
+    void setRHS     (const CellID row, const Double value) {m_rhs[row] = value;}
 
     CellID rhsSize() const {return m_rhs.size();}
     CellID lhsSize() const {return m_value.size();}
@@ -60,7 +52,7 @@ private:
     std::vector<CellID> m_row;
     std::vector<CellID> m_column;
     std::vector<Double> m_rhs;
-    std::unordered_map<std::pair<CellID, CellID>, std::size_t, pair_hash> m_indexMap;
+    std::unordered_map<uint64_t, std::size_t> m_indexMap;
 };
 
 #endif // TRIPLETSYSTEM_HPP

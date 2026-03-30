@@ -28,7 +28,7 @@ public:
         m_nu(nu)
     {}
     // System initialisation
-    void initialiseSolution(const Mesh& mesh);
+    void initialiseSolution (const Mesh& mesh, TripletSystem& tripletSystem);
 
     // Build functions
     void buildBurgers       (const Mesh& mesh, TripletSystem& tripletSystem);
