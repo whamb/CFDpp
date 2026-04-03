@@ -15,7 +15,8 @@ void SolveBurgers::cyclingStrategy(const Mesh& mesh, BurgersEqn& burgersEqn){
         m_tripletSystem.clear();
         burgersEqn.buildBurgers(mesh, m_tripletSystem);
         #ifdef USE_PETSC
-        burgersEqn.u() = PetscCsrSolve::solveWithPETSc(mesh, CsrSystem(m_tripletSystem));
+        //burgersEqn.u() = PetscCsrSolve::solveWithPETSc(mesh, CsrSystem(m_tripletSystem));
+        burgersEqn.u() = PetscCsrSolve::solveWithPETSc(mesh, m_tripletSystem);
         #else
         burgersEqn.u() = EigenSolve::solveWithEigen(mesh, m_tripletSystem);
         #endif

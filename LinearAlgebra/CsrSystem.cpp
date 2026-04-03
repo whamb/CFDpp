@@ -53,7 +53,7 @@ void CsrSystem::convertTripletToCsr(const TripletSystem& tripletSystem){
     }
 
     // Build RHS of the CSR system
-    std::copy(tripletSystem.rhs().begin(), 
-              tripletSystem.rhs().end(),
+    std::copy(tripletSystem.tripletRhs().begin(), 
+              tripletSystem.tripletRhs().end(),
               std::back_inserter(m_csrRhs));
 }

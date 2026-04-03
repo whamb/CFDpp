@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 
+#include <LinearSystem.hpp>
 #include <Mesh.hpp>
 #include <Types.hpp>
 
@@ -32,26 +33,31 @@ class TripletSystem
 public:
     TripletSystem(const Mesh& mesh);
 
+    const Lhs* lhs() const { return dynamic_cast<const Lhs*>(m_lhs.get()); }
+    const Rhs* rhs() const { return dynamic_cast<const Rhs*>(m_rhs.get()); }
+
     void buildLHSMap(const CellID row, const CellID column, const Double value);
     void addToLHS   (const CellID row, const CellID column, const Double value);
-    void addToRHS   (const CellID row, const Double value) {m_rhs[row] += value;}
-    void setRHS     (const CellID row, const Double value) {m_rhs[row] = value;}
+    void addToRHS   (const CellID row, const Double value) {m_tripletRhs[row] += value;}
+    void setRHS     (const CellID row, const Double value) {m_tripletRhs[row] = value;}
 
-    CellID rhsSize() const {return m_rhs.size();}
+    CellID rhsSize() const {return m_tripletRhs.size();}
     CellID lhsSize() const {return m_value.size();}
 
-    std::span<const Double> values()  const {return m_value;}
-    std::span<const CellID> rows()    const {return m_row;}
-    std::span<const CellID> columns() const {return m_column;}
-    std::span<const Double> rhs()     const {return m_rhs;}
+    const std::vector<Double>& values()     const {return m_value;}
+    const std::vector<CellID>& rows()       const {return m_row;}
+    const std::vector<CellID>& columns()    const {return m_column;}
+    const std::vector<Double>& tripletRhs() const {return m_tripletRhs;}
 
     void clear();
 
 private:
+    std::unique_ptr<Lhs> m_lhs;
+    std::unique_ptr<Rhs> m_rhs;
     std::vector<Double> m_value;
     std::vector<CellID> m_row;
     std::vector<CellID> m_column;
-    std::vector<Double> m_rhs;
+    std::vector<Double> m_tripletRhs;
     std::unordered_map<uint64_t, std::size_t> m_indexMap;
 };
 

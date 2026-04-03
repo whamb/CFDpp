@@ -73,7 +73,7 @@ Eigen::Map<const Eigen::VectorXd> EigenSolve::setupRhs(const TripletSystem& trip
 
     // Map raw pointer to Eigen vector without copying data
     return Eigen::Map<const Eigen::VectorXd>(
-        tripletSystem.rhs().data(), // pointer to data
+        tripletSystem.tripletRhs().data(), // pointer to data
         tripletSystem.rhsSize()     // size of vector
     );
 }

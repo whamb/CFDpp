@@ -6,7 +6,16 @@
 
 // Constructor: initialise RHS vector with number of cells
 TripletSystem::TripletSystem(const Mesh& mesh){
-    m_rhs.resize(mesh.nCells()); // one RHS entry per cell
+    m_tripletRhs.resize(mesh.nCells()); // one RHS entry per cell
+    m_lhs = std::make_unique<Lhs>(
+            std::span<const Double> (m_value),
+            std::span<const CellID> (m_row),
+            std::span<const CellID> (m_column)
+    );
+
+    m_rhs = std::make_unique<Rhs>(
+            std::span<const Double> (m_tripletRhs)
+    );
 }
 
 // Add contribution to matrix (LHS) at position (row, column)
@@ -48,7 +57,7 @@ void TripletSystem::clear(){
     m_value.assign(m_value.size(), 0.0);    // clear matrix values
 
     // Reset RHS to zero but keep allocated memory (no reallocation)
-    m_rhs.assign(m_rhs.size(), 0.0);
+    m_tripletRhs.assign(m_tripletRhs.size(), 0.0);
 
     // Clear index map (removes all key → index mappings)
     //m_indexMap.clear();

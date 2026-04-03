@@ -34,8 +34,8 @@ void BurgersEqn::initialiseSolution(const Mesh& mesh, TripletSystem& tripletSyst
 
         // Initialise solution in each cell
         // Example initial condition (currently constant since sin(pi)=0)
-        // m_u[cId] = exp(-x * x); 
-        m_u[cellId] = std::sin(std::numbers::pi * x); 
+        m_u[cellId] = exp(-x * x); 
+        //m_u[cellId] = std::sin(std::numbers::pi * x); 
     }
     
     // Compute flux on interior faces (average of neighbouring cells)

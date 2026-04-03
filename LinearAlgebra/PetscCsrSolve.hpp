@@ -7,6 +7,8 @@
 
 #include <CsrSystem.hpp>
 #include <ScalarField.hpp>
+#include <TripletSystem.hpp>
+
 
 /**
  * @brief Interface to solve a CSR-formatted linear system using PETSc.
@@ -24,11 +26,11 @@ public:
  * @param system A reference to the CSR system to be solved. Must have valid matrix and RHS.
  */
     static ScalarField solveWithPETSc(const Mesh& mesh, const CsrSystem& system);
+    static ScalarField solveWithPETSc(const Mesh& mesh, const TripletSystem& system);
 
     static Mat setupCsrLhs(const Lhs* csrLhs);
-    static Vec setupCsrRhs(const Rhs* csrLhs);
-
-
+    static Mat setupTripletLhs(const TripletSystem& tripletSystem);
+    static Vec setupRhs(const Rhs* csrRhs);
 };
 
 #endif
